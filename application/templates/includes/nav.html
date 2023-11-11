@@ -1,0 +1,66 @@
+<nav class="navbar is-transparent" role="navigation">
+
+    <div class="navbar-brand">
+        <a class="navbar-item" href="/">
+            <img src="{{ url_for('static',filename='images/icon2.png')}}" class="brandIcon">
+        </a>
+    </div>
+
+    <!-- <ul class="nav">
+        <li class="nav-item">
+            <a href="/home" class="nav-link {% if index %}active{% endif %}">Home</a>
+        </li>
+    </ul> -->
+
+    <div class="navbar-menu">
+        <div class="navbar-start">
+            <a class="navbar-item is-size-3 has-text-black is-tab space-x-12 {% if index %}active{% endif %}" href="/home">
+                Home
+            </a>
+
+            <a class="navbar-item is-size-3 has-text-black is-tab space-x-12 {% if about %}active{% endif %}" href="/about">
+                About Us
+            </a>
+
+            <a class="navbar-item is-size-3 has-text-black is-tab space-x-12 {% if predictiton %}active{% endif %}" href="/contact">
+                Predictions
+            </a>
+
+            <a class="navbar-item is-size-3 has-text-black is-tab space-x-12 {% if history %}active{% endif %}" href="/history">
+                History
+            </a>
+        </div>
+
+        <div class="navbar-end">
+            <div class="navbar-item m-6 mb-0">
+                <div class="dropdown is-hoverable is-right" style="cursor: pointer;">
+                    <div class="dropdown-trigger">
+                        <figure class="image is-96x96" aria-controls="dropdown-menu">
+                            <img class="is-rounded profileIcon"
+                                src="https://ui-avatars.com/api/?name=RyanYeo&size=96&rounded=True&length=1&bold=true">
+                        </figure>
+                    </div>
+
+                    <div class="dropdown-menu" id="dropdown-menu" role="menu">
+                        <div class="dropdown-content">
+                            <a href="/" class="dropdown-item is-size-4 has-text-black">
+                                Switch Account
+                            </a>
+                            <a href="/" class="dropdown-item is-size-4 has-text-black">
+                                Sign Out
+                            </a>
+                            <hr class="dropdown-divider">
+                            <a href="/" class="dropdown-item is-size-4 has-text-black">
+                                Help
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</nav>
