@@ -1,8 +1,11 @@
 html, body {
     font-family: Arial, Helvetica, sans-serif;
-    height: 100vh;
+    min-height: 100vh;
+    max-width: 100%;
+    padding: 0;
+    margin: 0;
     overflow-y: auto;
-    margin:0px;
+    overflow-x: hidden;
 }
 
 .error-message {
@@ -11,48 +14,76 @@ html, body {
 
 .mainContent {
     min-height: 75vh;
+    background-color: #efefe5;
 }
 
 /* Utils */
+.space-x-3 {
+    margin-left: 0.75rem;
+    margin-right: 0.75rem;
+}
+
+.space-x-6 {
+    margin-left: 1.5rem;
+    margin-right: 1.5rem;
+}
+
 .space-x-12 {
     margin-left: 3rem;
     margin-right: 3rem;
 }
 
+.w-full {
+    width: 100% !important;
+}
+
+.min-w-full {
+    min-width: 100% !important;
+}
+
+.max-w-full {
+    max-width: 100% !important;
+}
+
+.h-full {
+    height: 100%;
+}
+
 /* Navbar items */
-.navbar-start {
-    margin: 0;
-    width: 40%;
-    justify-content: center;
-    align-items: center;
-}
-
-.navbar-end {
-    margin: 0;
-    width: 60%;
-    justify-content: end;
-    align-items: center;
-}
-
 .brandIcon {
-    max-height: 60% !important;
-    padding: 0;
-    margin: 1.5rem;
+    max-height: 40% !important;
 }
 
 .profileIcon {
-    max-height: 90% !important;
+    max-height: 100% !important;
 }
 
 .navbar-item.is-tab {
     min-height: 2px;
+    border-bottom-width: 2px;
 }
 
-.navbar-item.is-tab:hover, .navbar-item.is-tab:focus {
-    border-bottom-color: #000000;
+.active {
+    color: #ffa500 !important;
+}
+
+.active:hover, .active:focus {
+    border-bottom-color: #ffa500 !important;
+}
+
+.unactive:hover, .unactive:focus {
+    border-bottom-color: #000000 !important;
+}
+
+.breadcrumb ol, .breadcrumb ul {
+    align-items: center;
+}
+
+.breadcrumb li+li::before {
+    color: #1E3050;
 }
 
 /* Footer */
 .footer {
-    padding: 4rem 1.5rem 4rem;
+    padding: 2rem 1.5rem 2rem;
 }
