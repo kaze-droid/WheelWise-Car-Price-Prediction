@@ -1,7 +1,7 @@
 <header class="container m-0 min-w-full" style="height: 10rem">
     <!-- Header for Desktop and Widescreens -->
     <nav class="navbar is-transparent h-full is-hidden-touch" role="navigation">
-    
+
         <div class="navbar-brand">
             <a class="navbar-item" href="/">
                 <img src="{{ url_for('static',filename='images/icon2.png')}}" class="brandIcon my-1 mx-5">
@@ -9,43 +9,51 @@
             <div class="is-flex is-align-items-center is-large breadcrumb has-bullet-separator">
                 <ul>
                     <li>
-                        <a class="navbar-item is-size-4 is-tab space-x-6 p-0 {% if index %}active {% else %}has-text-black unactive {% endif %}" href="/">
+                        <a class="navbar-item is-size-4 is-tab space-x-6 p-0 {% if index %}active {% else %}has-text-black unactive {% endif %}"
+                            href="/">
                             <span class="icon-text">
                                 <span class="icon">
-                                    <i class="mdi mdi-home-variant-outline {% if index %}active {% else %}has-text-black unactive {% endif %}mn"></i>
+                                    <i
+                                        class="mdi mdi-home-variant-outline {% if index %}active {% else %}has-text-black unactive {% endif %}mn"></i>
                                 </span>
                                 <span>Home</span>
                             </span>
                         </a>
                     </li>
-        
+
                     <li>
-                        <a class="navbar-item is-size-4 is-tab space-x-6 p-0 {% if about %}active {% else %}has-text-black unactive {% endif %}" href="/about">
+                        <a class="navbar-item is-size-4 is-tab space-x-6 p-0 {% if about %}active {% else %}has-text-black unactive {% endif %}"
+                            href="/about">
                             <span class="icon-text">
                                 <span class="icon">
-                                    <i class="mdi mdi-information {% if about %}active {% else %}has-text-black unactive {% endif %}"></i>
+                                    <i
+                                        class="mdi mdi-information {% if about %}active {% else %}has-text-black unactive {% endif %}"></i>
                                 </span>
                                 <span>About Us</span>
                             </span>
                         </a>
                     </li>
-        
+
                     <li>
-                        <a class="navbar-item is-size-4 is-tab space-x-6 p-0 {% if predict %}active {% else %}has-text-black unactive {% endif %}" href="/predict">
+                        <a class="navbar-item is-size-4 is-tab space-x-6 p-0 {% if predict %}active {% else %}has-text-black unactive {% endif %}"
+                            href="/predict">
                             <span class="icon-text">
                                 <span class="icon">
-                                    <i class="mdi mdi-finance {% if predict %}active {% else %}has-text-black unactive {% endif %}"></i>
+                                    <i
+                                        class="mdi mdi-finance {% if predict %}active {% else %}has-text-black unactive {% endif %}"></i>
                                 </span>
                                 <span>Predictions</span>
                             </span>
                         </a>
                     </li>
-        
+
                     <li>
-                        <a class="navbar-item is-size-4 is-tab space-x-6 p-0 {% if history %}active {% else %}has-text-black unactive {% endif %}" href="/history">
+                        <a class="navbar-item is-size-4 is-tab space-x-6 p-0 {% if history %}active {% else %}has-text-black unactive {% endif %}"
+                            href="/history">
                             <span class="icon-text">
                                 <span class="icon">
-                                    <i class="mdi mdi-history {% if history %}active {% else %}has-text-black unactive {% endif %}"></i>
+                                    <i
+                                        class="mdi mdi-history {% if history %}active {% else %}has-text-black unactive {% endif %}"></i>
                                 </span>
                                 <span>History</span>
                             </span>
@@ -54,7 +62,7 @@
                 </ul>
             </div>
         </div>
-    
+
         <div class="navbar-menu">
             <div class="navbar-start w-full is-justify-content-end is-align-items-center">
                 <div class="navbar-item m-6 mb-0">
@@ -65,7 +73,7 @@
                                     src="https://ui-avatars.com/api/?name=RyanYeo&size=96&rounded=True&length=1&bold=true">
                             </figure>
                         </div>
-    
+
                         <div class="dropdown-menu" id="dropdown-menu" role="menu">
                             <div class="dropdown-content">
                                 <a href="/" class="dropdown-item is-size-5 has-text-black">
@@ -81,15 +89,150 @@
                             </div>
                         </div>
                     </div>
-    
+
                 </div>
             </div>
         </div>
     </nav>
 
+    <!-- Handle click for hamburger menu -->
+
+    <script>
+        handleNavbarBurger = () => {
+            const hamburgerMenu = document.querySelector('#hamburgerMenu');
+            const modal = document.querySelector('#modal');
+
+            // Check if "is-active" class is present
+            if (hamburgerMenu.classList.contains('is-active')) {
+                hamburgerMenu.classList.remove('is-active');
+                // Close the modal
+                modal.classList.remove('is-active');
+            } else {
+                hamburgerMenu.classList.add('is-active');
+                // Open the modal
+                modal.classList.add('is-active');
+            }
+        }
+
+        // Add a keyboard event to close all modals
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                handleNavbarBurger();
+            }
+        });
+    </script>
+
+
     <!-- Header for Mobile and Tablets -->
+    <!-- is-hidden-desktop -->
     <nav class="navbar is-transparent h-full is-hidden-desktop" role="navigation">
-        <div>yohoooo</div>
+        <div class="navbar-brand is-align-items-center is-justify-content-space-between w-full h-full">
+            <a role="button" class="navbar-item navbar-burger m-6 has-text-black" id="hamburgerMenu" aria-label="menu"
+                aria-expanded="false" onclick="handleNavbarBurger()">
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+            </a>
+
+            <a class="navbar-item h-full" href="/">
+                <img src="{{ url_for('static',filename='images/icon2.png')}}" class="brandIcon my-1 mx-5">
+            </a>
+
+            <div class="navbar-item m-6 mb-0">
+                <div class="dropdown is-hoverable is-right is-clickable">
+                    <div class="dropdown-trigger">
+                        <figure class="image is-64x64" aria-controls="dropdown-menu">
+                            <img class="is-rounded profileIcon"
+                                src="https://ui-avatars.com/api/?name=RyanYeo&size=96&rounded=True&length=1&bold=true">
+                        </figure>
+                    </div>
+
+                    <div class="dropdown-menu" id="dropdown-menu" role="menu">
+                        <div class="dropdown-content">
+                            <a href="/" class="dropdown-item is-size-5 has-text-black">
+                                Switch Account
+                            </a>
+                            <a href="/" class="dropdown-item is-size-5 has-text-black">
+                                Sign Out
+                            </a>
+                            <hr class="dropdown-divider">
+                            <a href="/" class="dropdown-item is-size-5 has-text-black">
+                                Help
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </nav>
+
+    <div class="modal" id="modal">
+        <div class="modal-background" onclick="handleNavbarBurger()"></div>
+        <div class="modal-card">
+            <header class="modal-card-head">
+                <button class="delete" aria-label="close" onclick="handleNavbarBurger()"></button>
+                <div class="is-flex w-full is-justify-content-center">
+                    <strong class="is-size-4">Navigation</strong>
+                </div>
+            </header>
+            <section class="modal-card-body">
+                <div class="is-flex is-justify-content-center">
+                    <ul>
+                        <li>
+                            <a class="navbar-item is-size-4 is-tab space-y-3 p-0 has-text-centered {% if index %}active {% else %}has-text-black unactive {% endif %}"
+                                href="/">
+                                <span class="icon-text">
+                                    <span class="icon">
+                                        <i
+                                            class="mdi mdi-home-variant-outline {% if index %}active {% else %}has-text-black unactive {% endif %}mn"></i>
+                                    </span>
+                                    <span>Home</span>
+                                </span>
+                            </a>
+                        </li>
+    
+                        <li>
+                            <a class="navbar-item is-size-4 is-tab space-y-3 p-0 has-text-centered {% if about %}active {% else %}has-text-black unactive {% endif %}"
+                                href="/about">
+                                <span class="icon-text">
+                                    <span class="icon">
+                                        <i
+                                            class="mdi mdi-information {% if about %}active {% else %}has-text-black unactive {% endif %}"></i>
+                                    </span>
+                                    <span>About Us</span>
+                                </span>
+                            </a>
+                        </li>
+    
+                        <li>
+                            <a class="navbar-item is-size-4 is-tab space-y-3 p-0 has-text-centered {% if predict %}active {% else %}has-text-black unactive {% endif %}"
+                                href="/predict">
+                                <span class="icon-text">
+                                    <span class="icon">
+                                        <i
+                                            class="mdi mdi-finance {% if predict %}active {% else %}has-text-black unactive {% endif %}"></i>
+                                    </span>
+                                    <span>Predictions</span>
+                                </span>
+                            </a>
+                        </li>
+    
+                        <li>
+                            <a class="navbar-item is-size-4 is-tab space-y-3 p-0 has-text-centered {% if history %}active {% else %}has-text-black unactive {% endif %}"
+                                href="/history">
+                                <span class="icon-text">
+                                    <span class="icon">
+                                        <i
+                                            class="mdi mdi-history {% if history %}active {% else %}has-text-black unactive {% endif %}"></i>
+                                    </span>
+                                    <span>History</span>
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </section>
+        </div>
+    </div>
 
 </header>

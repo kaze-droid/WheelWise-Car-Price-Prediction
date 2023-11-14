@@ -13,7 +13,7 @@ html, body {
 }
 
 .mainContent {
-    min-height: 75vh;
+    min-height: 90vh;
     background-color: #efefe5;
 }
 
@@ -21,6 +21,11 @@ html, body {
 .space-x-3 {
     margin-left: 0.75rem;
     margin-right: 0.75rem;
+}
+
+.space-y-3 {
+    margin-top: 0.75rem;
+    margin-bottom: 0.75rem;
 }
 
 .space-x-6 {
@@ -81,6 +86,11 @@ html, body {
 
 .breadcrumb li+li::before {
     color: #1E3050;
+}
+
+.navbar-burger span {
+    width: 1.5rem;
+    height: 0.125rem;
 }
 
 /* Footer */
