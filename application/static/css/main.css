@@ -8,12 +8,16 @@ html, body {
     overflow-x: hidden;
 }
 
+.outerContainer {
+    height: 100vh;
+}
+
 .error-message {
     color: red;
 }
 
 .mainContent {
-    min-height: 85vh;
+    min-height: 80vh;
     background-color: #efefe5;
 }
 
