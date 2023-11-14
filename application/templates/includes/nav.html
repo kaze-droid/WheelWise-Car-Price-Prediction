@@ -4,7 +4,7 @@
 
         <div class="navbar-brand">
             <a class="navbar-item" href="/">
-                <img src="{{ url_for('static',filename='images/icon2.png')}}" class="brandIcon my-1 mx-5">
+                <img src="{{ url_for('static',filename='images/icon.png')}}" class="brandIcon my-1 mx-5">
             </a>
             <div class="is-flex is-align-items-center is-large breadcrumb has-bullet-separator">
                 <ul>
@@ -70,10 +70,11 @@
                         <div class="dropdown-trigger">
                             <figure class="image is-64x64" aria-controls="dropdown-menu">
                                 <img class="is-rounded profileIcon"
-                                    src="https://ui-avatars.com/api/?name=RyanYeo&size=96&rounded=True&length=1&bold=true">
+                                    src="{% if loggedIn %}https://ui-avatars.com/api/?name={{  user.username  }}&size=64&rounded=True&length=1&bold=true{% else %}{{ url_for('static',filename='images/blankProfile.png')}}{% endif %}">
                             </figure>
                         </div>
 
+                        {% if loggedIn %}
                         <div class="dropdown-menu" id="dropdown-menu" role="menu">
                             <div class="dropdown-content">
                                 <a href="/" class="dropdown-item is-size-5 has-text-black">
@@ -88,11 +89,27 @@
                                 </a>
                             </div>
                         </div>
-                    </div>
 
+                        {% else %}
+                        <div class="dropdown-menu" id="dropdown-menu" role="menu">
+                            <div class="dropdown-content">
+                                <a href="/" class="dropdown-item is-size-5 has-text-black">
+                                    Sign In
+                                </a>
+                                <a href="/" class="dropdown-item is-size-5 has-text-black">
+                                    Sign Up
+                                </a>
+                                <hr class="dropdown-divider">
+                                <a href="/" class="dropdown-item is-size-5 has-text-black">
+                                    Help
+                                </a>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                    </div>
                 </div>
             </div>
-        </div>
     </nav>
 
     <!-- Handle click for hamburger menu -->
@@ -135,18 +152,18 @@
             </a>
 
             <a class="navbar-item h-full" href="/">
-                <img src="{{ url_for('static',filename='images/icon2.png')}}" class="brandIcon my-1 mx-5">
+                <img src="{{ url_for('static',filename='images/icon.png')}}" class="brandIcon my-1 mx-5">
             </a>
 
             <div class="navbar-item m-6 mb-0">
-                <div class="dropdown is-hoverable is-right is-clickable">
+                <div class="dropdown is-hoverable is-right is-clickable" id="dropdown">
                     <div class="dropdown-trigger">
                         <figure class="image is-64x64" aria-controls="dropdown-menu">
                             <img class="is-rounded profileIcon"
-                                src="https://ui-avatars.com/api/?name=RyanYeo&size=96&rounded=True&length=1&bold=true">
+                                src="{% if loggedIn %}https://ui-avatars.com/api/?name={{  user.username  }}&size=64&rounded=True&length=1&bold=true{% else %}{{ url_for('static',filename='images/blankProfile.png')}}{% endif %}">
                         </figure>
                     </div>
-
+                    {% if loggedIn %}
                     <div class="dropdown-menu" id="dropdown-menu" role="menu">
                         <div class="dropdown-content">
                             <a href="/" class="dropdown-item is-size-5 has-text-black">
@@ -161,6 +178,23 @@
                             </a>
                         </div>
                     </div>
+
+                    {% else %}
+                    <div class="dropdown-menu" id="dropdown-menu" role="menu">
+                        <div class="dropdown-content">
+                            <a href="/" class="dropdown-item is-size-5 has-text-black">
+                                Sign In
+                            </a>
+                            <a href="/" class="dropdown-item is-size-5 has-text-black">
+                                Sign Up
+                            </a>
+                            <hr class="dropdown-divider">
+                            <a href="/" class="dropdown-item is-size-5 has-text-black">
+                                Help
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -190,7 +224,7 @@
                                 </span>
                             </a>
                         </li>
-    
+
                         <li>
                             <a class="navbar-item is-size-4 is-tab space-y-3 p-0 has-text-centered {% if about %}active {% else %}has-text-black unactive {% endif %}"
                                 href="/about">
@@ -203,7 +237,7 @@
                                 </span>
                             </a>
                         </li>
-    
+
                         <li>
                             <a class="navbar-item is-size-4 is-tab space-y-3 p-0 has-text-centered {% if predict %}active {% else %}has-text-black unactive {% endif %}"
                                 href="/predict">
@@ -216,7 +250,7 @@
                                 </span>
                             </a>
                         </li>
-    
+
                         <li>
                             <a class="navbar-item is-size-4 is-tab space-y-3 p-0 has-text-centered {% if history %}active {% else %}has-text-black unactive {% endif %}"
                                 href="/history">

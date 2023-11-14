@@ -1,8 +1,14 @@
 from application import app
 from flask import render_template
 
+# userData = {
+#     "loggedIn": True,
+#     "user": {"username": "TestData"}
+# }
+
 @app.route('/')
 def home():
+    # return render_template("index.html", index=True, **userData)
     return render_template("index.html", index=True)
 
 @app.route('/about')

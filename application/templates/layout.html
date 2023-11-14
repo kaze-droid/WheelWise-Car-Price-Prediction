@@ -7,18 +7,21 @@
     <link rel="stylesheet" href="{{ url_for('static',filename='css/main.css')}}" />
     <script src="https://kit.fontawesome.com/514988f7ef.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@6.5.95/css/materialdesignicons.min.css" />
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static',filename='images/logo.png')}}">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 
 <body>
     <div class="w-full h-full">
-        {% include "includes/nav.html" %}
-        <div class="container mainContent m-0 max-w-full">
-            {% block content %}
-            {% endblock %}
+        <div class="w-full h-full">
+            {% include "includes/nav.html" %}
+            <div class="is-flex container mainContent p-6 max-w-full">
+                {% block content %}
+                {% endblock %}
+            </div>
         </div>
+        {% include "includes/footer.html" %}
     </div>
-    {% include "includes/footer.html" %}
 </body>
 
 </html>
