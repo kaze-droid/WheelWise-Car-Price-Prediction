@@ -3,9 +3,10 @@ from wtforms import RadioField, IntegerField, FloatField, IntegerRangeField, Sel
 from wtforms.validators import Length, InputRequired, ValidationError, NumberRange
 
 class PredictionForm(FlaskForm):
-    brands = [('1','1'),('2','2'),('3','3')]
+    brands = [('audi','Audi'),('bmw','BMW'),('merc','Mercedes'), ('ford', 'Ford'), ('hyundi', 'Hyundi'), ('skoda', 'Skoda'), ('toyota', 'Toyota'), ('vauxhall', 'Vauxhall'), ('vw', 'VolksWagen')]
     # Get models from database
-    models = [('4','4'),('5','5'),('6','6')]
+    models = []
+
     brand = SelectField('Brand', choices=brands, validators=[InputRequired()])
     model = SelectField('Model', choices=models, validators=[InputRequired()])
 

@@ -1,0 +1,196 @@
+brand,model
+audi,A1
+audi,A6
+audi,A4
+audi,A3
+audi,Q3
+audi,Q5
+audi,A5
+audi,S4
+audi,Q2
+audi,A7
+audi,TT
+audi,Q7
+audi,RS6
+audi,RS3
+audi,A8
+audi,Q8
+audi,RS4
+audi,RS5
+audi,R8
+audi,SQ5
+audi,S8
+audi,SQ7
+audi,S3
+audi,S5
+audi,A2
+audi,RS7
+bmw,5 Series
+bmw,6 Series
+bmw,1 Series
+bmw,7 Series
+bmw,2 Series
+bmw,4 Series
+bmw,X3
+bmw,3 Series
+bmw,X5
+bmw,X4
+bmw,i3
+bmw,X1
+bmw,M4
+bmw,X2
+bmw,X6
+bmw,8 Series
+bmw,Z4
+bmw,X7
+bmw,M5
+bmw,i8
+bmw,M2
+bmw,M3
+bmw,M6
+bmw,Z3
+merc,C Class
+ford,Focus
+ford,Fiesta
+ford,Puma
+ford,Kuga
+ford,EcoSport
+ford,C-MAX
+ford,Mondeo
+ford,Ka+
+ford,Tourneo Custom
+ford,S-MAX
+ford,B-MAX
+ford,Edge
+ford,Tourneo Connect
+ford,Grand C-MAX
+ford,KA
+ford,Galaxy
+ford,Mustang
+ford,Grand Tourneo Connect
+ford,Fusion
+ford,Ranger
+ford,Streetka
+ford,Escort
+ford,Transit Tourneo
+hyundi,I20
+hyundi,Tucson
+hyundi,I10
+hyundi,IX35
+hyundi,I30
+hyundi,I40
+hyundi,Ioniq
+hyundi,Kona
+hyundi,Veloster
+hyundi,I800
+hyundi,IX20
+hyundi,Santa Fe
+hyundi,Accent
+hyundi,Terracan
+hyundi,Getz
+hyundi,Amica
+merc,SLK
+merc,S Class
+merc,SL CLASS
+merc,G Class
+merc,GLE Class
+merc,GLA Class
+merc,A Class
+merc,B Class
+merc,GLC Class
+merc,E Class
+merc,GL Class
+merc,CLS Class
+merc,CLC Class
+merc,CLA Class
+merc,V Class
+merc,M Class
+merc,CL Class
+merc,GLS Class
+merc,GLB Class
+merc,X-CLASS
+merc,180
+merc,CLK
+merc,R Class
+merc,230
+merc,220
+merc,200
+skoda,Octavia
+skoda,Citigo
+skoda,Yeti Outdoor
+skoda,Superb
+skoda,Kodiaq
+skoda,Rapid
+skoda,Karoq
+skoda,Fabia
+skoda,Yeti
+skoda,Scala
+skoda,Roomster
+skoda,Kamiq
+toyota,GT86
+toyota,Corolla
+toyota,RAV4
+toyota,Yaris
+toyota,Auris
+toyota,Aygo
+toyota,C-HR
+toyota,Prius
+toyota,Avensis
+toyota,Verso
+toyota,Hilux
+toyota,PROACE VERSO
+toyota,Land Cruiser
+toyota,Supra
+toyota,Camry
+toyota,Verso-S
+toyota,IQ
+toyota,Urban Cruiser
+vauxhall,Corsa
+vauxhall,Astra
+vauxhall,Viva
+vauxhall,Mokka
+vauxhall,Mokka X
+vauxhall,Crossland X
+vauxhall,Zafira
+vauxhall,Meriva
+vauxhall,Zafira Tourer
+vauxhall,Adam
+vauxhall,Grandland X
+vauxhall,Antara
+vauxhall,Insignia
+vauxhall,Ampera
+vauxhall,GTC
+vauxhall,Combo Life
+vauxhall,Vivaro
+vauxhall,Cascada
+vauxhall,Kadjar
+vauxhall,Agila
+vauxhall,Tigra
+vauxhall,Vectra
+vw,T-Roc
+vw,Golf
+vw,Passat
+vw,T-Cross
+vw,Polo
+vw,Tiguan
+vw,Sharan
+vw,Up
+vw,Scirocco
+vw,Beetle
+vw,Caddy Maxi Life
+vw,Caravelle
+vw,Touareg
+vw,Arteon
+vw,Touran
+vw,Golf SV
+vw,Amarok
+vw,Tiguan Allspace
+vw,Shuttle
+vw,Jetta
+vw,CC
+vw,California
+vw,Caddy Life
+vw,Caddy
+vw,Caddy Maxi
+vw,Eos
+vw,Fox

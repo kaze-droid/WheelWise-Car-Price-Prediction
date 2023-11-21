@@ -5,16 +5,70 @@
 <div class="h-full w-full">
     <form name="formPredict" action="/predict" method="post" novalidate>
         <fieldset class="form-group">
-            <legend class="is-size-3 has-text-weight-bold mb-6 has-text-black has-text-centered is-family-code">{{title}}</legend>
+            <legend class="is-size-3 has-text-weight-bold mb-6 has-text-black has-text-centered is-family-code">
+                {{title}}</legend>
             {{ form.hidden_tag() }}
 
             <div class="is-flex w-full is-justify-content-space-around space-y-3 pb-6">
                 <div class="is-flex is-flex-direction-column w-25">
+
+                    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+                    <script>
+                        const getModels = async (brand, callback) => {
+                            $.ajax({
+                                url: `/api/models/${brand}`,
+                                type: 'GET',
+                                success: function(res) {
+                                    const resJSON = JSON.parse(res);
+                                    if (callback) {
+                                        callback(resJSON, null);
+                                    }
+                                },
+                                error: function(err) {
+                                    if (callback) {
+                                        callback(null, err);
+                                    }
+                                }
+                            });
+                        }
+                    </script>
+        
+                    <script>
+                        const dynamicModel = async () => {
+                            const brandElement = document.querySelector("#brand");
+                            const modelElement = document.querySelector("#model");
+
+                            await getModels(brandElement.value, function(resJSON, err) {
+                                if (err) {
+                                    console.error(err);
+                                } else {
+                                    models = Object.values(resJSON)
+                                    
+                                    // Clear existing options
+                                    model.innerHTML = "";
+
+                                    // Change options present in model dropdown based on brand selected
+                                    models.forEach(model => {
+                                        const option = document.createElement("option");
+                                        option.text = model;
+                                        option.value = model;
+                                        modelElement.add(option);
+                                    });
+                                    
+                                }
+                            });
+                        }
+
+                        document.addEventListener("DOMContentLoaded", dynamicModel);
+                        document.addEventListener("input", dynamicModel);
+                    </script>
+
+
                     <!-- Brand -->
                     <div class="field has-addons">
                         <p class="control">
                             <a class="button is-static">
-                                {{ form.brand.label }}
+                                {{ form.brand.label(oninput="dynamicModel()") }}
                             </a>
                         </p>
                         <div class="control is-expanded">
@@ -102,16 +156,10 @@
                 </div>
 
                 <script>
-                    document.addEventListener("DOMContentLoaded", function () {
-                        var range = document.querySelector('#mileage')
-                        var rangeV = document.querySelector('.bubble')
-                    });
-
                     const setValue = () => {
                         let range = document.querySelector('#mileage');
                         let rangeV = document.querySelector('.bubble');
                         const newValue = Number((range.value - range.min) * 100 / (range.max - range.min))
-                        console.log(newValue);
                         const newPosition = 10 - (newValue * 0.2);
                         // Format range with commas as thousands separators
                         range = range.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
