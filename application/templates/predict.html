@@ -2,8 +2,166 @@
 {% extends "layout.html" %}
 <!-- The block content replace the one encapsulated in layout.html -->
 {% block content %}
-    <div>
-        <div class="is-size-3">
-        <h1>Predict</h1>
-    </div>
-{% endblock %}
+<div class="h-full w-full">
+    <form name="formPredict" action="/predict" method="post" novalidate>
+        <fieldset class="form-group">
+            <legend class="is-size-3 has-text-weight-bold mb-6 has-text-black has-text-centered is-family-code">{{title}}</legend>
+            {{ form.hidden_tag() }}
+
+            <div class="is-flex w-full is-justify-content-space-around space-y-3 pb-6">
+                <div class="is-flex is-flex-direction-column w-25">
+                    <!-- Brand -->
+                    <div class="field has-addons">
+                        <p class="control">
+                            <a class="button is-static">
+                                {{ form.brand.label }}
+                            </a>
+                        </p>
+                        <div class="control is-expanded">
+                            <div class="select is-fullwidth is-info">{{ form.brand }}</div>
+                        </div>
+                    </div>
+
+                    <!-- Model -->
+                    <div class="field has-addons">
+                        <p class="control">
+                            <a class="button is-static is-info">
+                                {{ form.model.label }}
+                            </a>
+                        </p>
+                        <div class="control is-expanded">
+                            <div class="select is-fullwidth is-info">{{ form.model }}</div>
+                        </div>
+                    </div>
+
+                    <!-- Registration Year -->
+                    <script>
+                        document.addEventListener("DOMContentLoaded", function () {
+                            const regYear = document.querySelector("#regYear");
+
+                            document.addEventListener("click", function (e) {
+                                const isClickedOutside = !regYear.contains(e.target);
+
+                                if (isClickedOutside) {
+                                    validateYear();
+                                }
+                            });
+                        });
+                        const increment = () => {
+                            regYear.stepUp();
+                        };
+
+                        const decrement = () => {
+                            regYear.stepDown();
+                        };
+
+                        const validateYear = () => {
+                            const minValue = 1970;
+                            const maxValue = 2020;
+
+                            let yearValue = parseInt(regYear.value);
+
+                            if (yearValue < minValue || yearValue > maxValue) {
+                                regYear.value = minValue;
+                            }
+                        }
+                    </script>
+
+                    <label class="label">{{ form.regYear.label }}</label>
+                    <div class="field has-addons">
+                        <p class="control">
+                            <button class="button is-primary" type="button" id="down" onclick="decrement()">
+                                <i class="fa-solid fa-arrow-down"></i>
+                            </button>
+                        </p>
+                        <div class="control is-expanded">
+                            {{ form.regYear(class_="w-full input", id_="regYear", **{"value":"1970"}) }}
+                        </div>
+                        <p class="control">
+                            <button class="button is-primary" type="button" id="up" onclick="increment()">
+                                <i class="fa-solid fa-arrow-up"></i>
+                            </button>
+                        </p>
+                    </div>
+
+                    <!-- Gearbox -->
+                    <div class="field">
+                        <label class="label">{{ form.gearbox.label }}</label>
+                        <div class="control">
+                            {{ form.gearbox }}
+                        </div>
+                    </div>
+
+                    <!-- Engine Size -->
+                    <div class="field">
+                        <label class="label">{{ form.engineSize.label }} (in litres)</label>
+                        <div class="control">
+                            {{ form.engineSize }}
+                        </div>
+                    </div>
+                </div>
+
+                <script>
+                    document.addEventListener("DOMContentLoaded", function () {
+                        var range = document.querySelector('#mileage')
+                        var rangeV = document.querySelector('.bubble')
+                    });
+
+                    const setValue = () => {
+                        let range = document.querySelector('#mileage');
+                        let rangeV = document.querySelector('.bubble');
+                        const newValue = Number((range.value - range.min) * 100 / (range.max - range.min))
+                        console.log(newValue);
+                        const newPosition = 10 - (newValue * 0.2);
+                        // Format range with commas as thousands separators
+                        range = range.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                        rangeV.innerHTML = `<span>${range}</span>`;
+                        rangeV.style.left = `calc(${newValue}% + (${newPosition}px))`;
+                    };
+
+                    document.addEventListener("DOMContentLoaded", setValue);
+                    document.addEventListener("input", setValue);
+                </script>
+
+                <div class="is-flex is-flex-direction-column w-25">
+                    <!-- Mileage -->
+                    <div class="field">
+                        <label class="label pb-3">{{ form.mileage.label }} (in kilometers)</label>
+                        <div class="control">
+                            {{ form.mileage }}
+                            <div class="range-value bubble"></div>
+                        </div>
+                    </div>
+
+                    <!-- Fuel Type -->
+                    <div class="field">
+                        <label class="label">{{ form.fuelType.label }}</label>
+                        <div class="control">
+                            {{ form.fuelType }}
+                        </div>
+                    </div>
+
+                    <!-- Road Tax -->
+                    <div class="field">
+                        <label class="label">{{ form.roadTax.label }}</label>
+                        <div class="control">
+                            {{ form.roadTax }}
+                        </div>
+                    </div>
+
+                    <!-- Miles Per Gallon -->
+                    <div class="field">
+                        <label class="label">{{ form.milesPerGallon.label }}</label>
+                        <div class="control">
+                            {{ form.milesPerGallon }}
+                        </div>
+                    </div>
+                </div>
+        </fieldset>
+        <div class="field is-grouped is-justify-content-center pt-6">
+            <div class="control">
+                {{ form.submit(class_='button is-link') }}
+            </div>
+        </div>
+    </form>
+    {% endblock %}

@@ -1,5 +1,6 @@
 from application import app
 from flask import render_template
+from application.forms import PredictionForm
 
 # userData = {
 #     "loggedIn": True,
@@ -15,9 +16,10 @@ def home():
 def about():
     return render_template("about.html", about=True)
 
-@app.route('/predict')
+@app.route('/predict', methods=['GET', 'POST'])
 def predict():
-    return render_template("predict.html", predict=True)
+    form = PredictionForm()
+    return render_template("predict.html", predict=True, form=form, title="WheelWise Car Prediction")
 
 @app.route('/history')
 def history():

@@ -1,26 +1,29 @@
 <!-- Inherits from layout.html -->
 {% extends "layout.html" %}
 <!-- The block content replace the one encapsulated in layout.html -->
-{% block content %}
-<!-- Desktop Version -->
-<div class="is-flex is-align-items-center h-full is-hidden-touch m-auto">
-    <div class="is-flex-grow-1">{% include "svgs/car.html" %}</div>
-    <div class="is-flex is-flex-direction-column ml-6">
-        <div class="is-size-1 has-text-centered has-text-black is-flex-grow-1 space-x-3 is-family-code">
-            <strong class="has-text-link-dark">Navigate</strong> The Road To <strong class="has-text-link-dark">Smart Car Buying</strong>
-        </div>
-        <div class="is-size-5 has-text-centered mt-5 has-text-dark is-family-monospace">Unlock the road to smarter second-hand car buying by <a href="/" class="has-text-link is-underlined">signing up</a> for your free account today!</div>
-    </div>
-</div>
 
-<!-- Mobile and Tablet Version -->
-<div class="is-flex is-align-items-center h-full is-flex-direction-column is-hidden-desktop">
-    <div class="is-flex-grow-1">{% include "svgs/car.html" %}</div>
-    <div class="is-flex is-flex-direction-column mt-6">
-        <div class="is-size-1 has-text-centered has-text-black is-flex-grow-1 space-x-3 is-family-code">
-            <strong class="has-text-link-dark">Navigate</strong> The Road To <strong class="has-text-link-dark">Smart Car Buying</strong>
+{% block content %}
+<div>
+    <!-- Desktop Version -->
+    <div class="is-flex is-align-items-center h-full is-hidden-touch m-auto">
+        <div class="is-flex-grow-1">{% include "svgs/car.html" %}</div>
+        <div class="is-flex is-flex-direction-column ml-6">
+            <div class="is-size-1 has-text-centered has-text-black is-flex-grow-1 space-x-3 is-family-code">
+                <strong class="has-text-link-dark">Navigate</strong> The Road To <strong class="has-text-link-dark">Smart Car Buying</strong>
+            </div>
+            <div class="is-size-5 has-text-centered mt-5 has-text-dark is-family-monospace">Unlock the road to smarter second-hand car buying by <a href="/" class="has-text-link is-underlined">signing up</a> for your free account today!</div>
         </div>
-        <div class="is-size-5 has-text-centered mt-5 has-text-dark is-family-monospace">Unlock the road to smarter second-hand car buying by <a href="/" class="has-text-link is-underlined">signing up</a> for your free account today!</div>
+    </div>
+    
+    <!-- Mobile and Tablet Version -->
+    <div class="is-flex is-align-items-center h-full is-flex-direction-column is-hidden-desktop">
+        <div class="is-flex-grow-1">{% include "svgs/car.html" %}</div>
+        <div class="is-flex is-flex-direction-column mt-6">
+            <div class="is-size-1 has-text-centered has-text-black is-flex-grow-1 space-x-3 is-family-code">
+                <strong class="has-text-link-dark">Navigate</strong> The Road To <strong class="has-text-link-dark">Smart Car Buying</strong>
+            </div>
+            <div class="is-size-5 has-text-centered mt-5 has-text-dark is-family-monospace">Unlock the road to smarter second-hand car buying by <a href="/" class="has-text-link is-underlined">signing up</a> for your free account today!</div>
+        </div>
     </div>
 </div>
 
