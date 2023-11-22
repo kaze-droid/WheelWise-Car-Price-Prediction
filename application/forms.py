@@ -1,14 +1,13 @@
 from flask_wtf import FlaskForm
 from wtforms import RadioField, IntegerField, FloatField, IntegerRangeField, SelectField, SubmitField
 from wtforms.validators import Length, InputRequired, ValidationError, NumberRange
+import pandas as pd
 
 class PredictionForm(FlaskForm):
     brands = [('audi','Audi'),('bmw','BMW'),('merc','Mercedes'), ('ford', 'Ford'), ('hyundi', 'Hyundi'), ('skoda', 'Skoda'), ('toyota', 'Toyota'), ('vauxhall', 'Vauxhall'), ('vw', 'VolksWagen')]
-    # Get models from database
-    models = []
 
     brand = SelectField('Brand', choices=brands, validators=[InputRequired()])
-    model = SelectField('Model', choices=models, validators=[InputRequired()])
+    model = SelectField('Model', validate_choice=False, validators=[InputRequired()])
 
     # Highest: 2020
     regYear = IntegerField('Registration Year', validators=[InputRequired(), NumberRange(min=1970, max=2020)])
@@ -30,5 +29,6 @@ class PredictionForm(FlaskForm):
     milesPerGallon = FloatField('Miles Per Gallon', validators=[InputRequired(), NumberRange(min=0, max=500)])
 
     submit = SubmitField('Predict Price')
+
 
 

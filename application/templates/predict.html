@@ -3,11 +3,29 @@
 <!-- The block content replace the one encapsulated in layout.html -->
 {% block content %}
 <div class="h-full w-full">
-    <form name="formPredict" action="/predict" method="post" novalidate>
+    <form name="formPredict" action="/predict" method="post" onkeypress="return event.keyCode != 13" novalidate>
         <fieldset class="form-group">
             <legend class="is-size-3 has-text-weight-bold mb-6 has-text-black has-text-centered is-family-code">
                 {{title}}</legend>
             {{ form.hidden_tag() }}
+            
+            {% with messages = get_flashed_messages(with_categories=true)%}
+            {% if messages %}
+            <div class="is-flex is-justify-content-center pb-6">
+                {% for category, message in messages %}
+                {% if category == "success" %}
+                <div class="notification is-primary w-50">
+                    <p>{{ message }}</p>
+                </div>
+                {% elif category == "error" %}
+                <div class="notification is-danger w-50">
+                    <p>{{ message }}</p>
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endwith %}
 
             <div class="is-flex w-full is-justify-content-space-around space-y-3 pb-6">
                 <div class="is-flex is-flex-direction-column w-25">
@@ -18,13 +36,13 @@
                             $.ajax({
                                 url: `/api/models/${brand}`,
                                 type: 'GET',
-                                success: function(res) {
+                                success: (res) => {
                                     const resJSON = JSON.parse(res);
                                     if (callback) {
                                         callback(resJSON, null);
                                     }
                                 },
-                                error: function(err) {
+                                error: (err) => {
                                     if (callback) {
                                         callback(null, err);
                                     }
@@ -32,18 +50,18 @@
                             });
                         }
                     </script>
-        
+
                     <script>
                         const dynamicModel = async () => {
                             const brandElement = document.querySelector("#brand");
                             const modelElement = document.querySelector("#model");
 
-                            await getModels(brandElement.value, function(resJSON, err) {
+                            await getModels(brandElement.value, function (resJSON, err) {
                                 if (err) {
                                     console.error(err);
                                 } else {
                                     models = Object.values(resJSON)
-                                    
+
                                     // Clear existing options
                                     model.innerHTML = "";
 
@@ -54,17 +72,22 @@
                                         option.value = model;
                                         modelElement.add(option);
                                     });
-                                    
+
                                 }
                             });
                         }
 
-                        document.addEventListener("DOMContentLoaded", dynamicModel);
-                        document.addEventListener("input", dynamicModel);
+                        document.addEventListener("DOMContentLoaded", () => {
+                            const brandElement = document.querySelector("#brand");
+                            brandElement.value = 'audi'
+                            dynamicModel();
+                            brandElement.addEventListener("change", dynamicModel);
+                        });
                     </script>
 
 
                     <!-- Brand -->
+                    <label class="label pb-3">Car Brand and Models</label>
                     <div class="field has-addons">
                         <p class="control">
                             <a class="button is-static">
@@ -74,6 +97,11 @@
                         <div class="control is-expanded">
                             <div class="select is-fullwidth is-info">{{ form.brand }}</div>
                         </div>
+                        {% for error in form.brand.errors %}
+                        <span class="error-message">
+                            <p class="help">{{ error }}</p>
+                        </span>
+                        {% endfor %}
                     </div>
 
                     <!-- Model -->
@@ -86,11 +114,16 @@
                         <div class="control is-expanded">
                             <div class="select is-fullwidth is-info">{{ form.model }}</div>
                         </div>
+                        {% for error in form.model.errors %}
+                        <span class="error-message">
+                            <p class="help">{{ error }}</p>
+                        </span>
+                        {% endfor %}
                     </div>
 
                     <!-- Registration Year -->
                     <script>
-                        document.addEventListener("DOMContentLoaded", function () {
+                        document.addEventListener("DOMContentLoaded", () => {
                             const regYear = document.querySelector("#regYear");
 
                             document.addEventListener("click", function (e) {
@@ -101,6 +134,7 @@
                                 }
                             });
                         });
+
                         const increment = () => {
                             regYear.stepUp();
                         };
@@ -137,6 +171,11 @@
                             </button>
                         </p>
                     </div>
+                    {% for error in form.regYear.errors %}
+                    <span class="error-message">
+                        <p class="help">{{ error }}</p>
+                    </span>
+                    {% endfor %}
 
                     <!-- Gearbox -->
                     <div class="field">
@@ -144,14 +183,25 @@
                         <div class="control">
                             {{ form.gearbox }}
                         </div>
+                        {% for error in form.gearbox.errors %}
+                        <span class="error-message">
+                            <p class="help">{{ error }}</p>
+                        </span>
+                        {% endfor %}
                     </div>
 
                     <!-- Engine Size -->
                     <div class="field">
-                        <label class="label">{{ form.engineSize.label }} (in litres)</label>
+                        <label class="label">{{ form.engineSize.label }}</label>
                         <div class="control">
-                            {{ form.engineSize }}
+                            {{ form.engineSize(class_="input") }}
                         </div>
+                        <p class="help">Engine Size in litres (ℓ)</p>
+                        {% for error in form.engineSize.errors %}
+                        <span class="error-message">
+                            <p class="help">{{ error }}</p>
+                        </span>
+                        {% endfor %}
                     </div>
                 </div>
 
@@ -167,18 +217,27 @@
                         rangeV.style.left = `calc(${newValue}% + (${newPosition}px))`;
                     };
 
-                    document.addEventListener("DOMContentLoaded", setValue);
-                    document.addEventListener("input", setValue);
+                    document.addEventListener("DOMContentLoaded", () => {
+                        setValue();
+                        let range = document.querySelector('#mileage');
+                        range.addEventListener("input", setValue);
+                    });
                 </script>
 
                 <div class="is-flex is-flex-direction-column w-25">
                     <!-- Mileage -->
                     <div class="field">
-                        <label class="label pb-3">{{ form.mileage.label }} (in kilometers)</label>
+                        <label class="label pb-3">{{ form.mileage.label }}</label>
                         <div class="control">
-                            {{ form.mileage }}
+                            {{ form.mileage(step="250") }}
                             <div class="range-value bubble"></div>
                         </div>
+                        {% for error in form.mileage.errors %}
+                        <span class="error-message">
+                            <p class="help">{{ error }}</p>
+                        </span>
+                        {% endfor %}
+                        <p class="help">Mileage is in kilometers (km)</p>
                     </div>
 
                     <!-- Fuel Type -->
@@ -187,22 +246,37 @@
                         <div class="control">
                             {{ form.fuelType }}
                         </div>
+                        {% for error in form.fuelType.errors %}
+                        <span class="error-message">
+                            <p class="help">{{ error }}</p>
+                        </span>
+                        {% endfor %}
                     </div>
 
                     <!-- Road Tax -->
                     <div class="field">
                         <label class="label">{{ form.roadTax.label }}</label>
                         <div class="control">
-                            {{ form.roadTax }}
+                            {{ form.roadTax(class_="input") }}
                         </div>
+                        {% for error in form.roadTax.errors %}
+                        <span class="error-message">
+                            <p class="help">{{ error }}</p>
+                        </span>
+                        {% endfor %}
                     </div>
 
                     <!-- Miles Per Gallon -->
                     <div class="field">
                         <label class="label">{{ form.milesPerGallon.label }}</label>
                         <div class="control">
-                            {{ form.milesPerGallon }}
+                            {{ form.milesPerGallon(class_="input") }}
                         </div>
+                        {% for error in form.milesPerGallon.errors %}
+                        <span class="error-message">
+                            <p class="help">{{ error }}</p>
+                        </span>
+                        {% endfor %}
                     </div>
                 </div>
         </fieldset>
