@@ -1,7 +1,8 @@
-from application import app
+from application import app, ai_model
 from flask import render_template, request, flash
 from application.forms import PredictionForm
 import pandas as pd
+import json
 
 # userData = {
 #     "loggedIn": True,
@@ -20,6 +21,21 @@ def about():
 @app.route('/predict', methods=['GET', 'POST'])
 def predict():
     form = PredictionForm()
+    # Get the brand option
+    brand = form.brand.data
+    # Get the model option
+    modelsJSON, errCode = getModels(brand)
+
+    if errCode == 200:
+        # Get all the keys out of json
+        models = list(json.loads(modelsJSON).values())
+        form.model.choices = [(m, m.capitalize()) for m in models]
+    
+    # If model option does not exist for brand
+    else:
+        # Set choice to empty so it will raise error
+        form.model.choices = []
+
     if request.method == 'POST':
         if form.validate_on_submit():
             # Get the form data
@@ -33,19 +49,21 @@ def predict():
             mpg = form.milesPerGallon.data
             engineSize = form.engineSize.data
 
-            # # Create the input dataframe
-            # input_df = pd.DataFrame([[brand, model, year, mileage, transmission, fuelType, tax, mpg, engineSize]],
-            #                         columns=['brand', 'model', 'year', 'mileage', 'transmission', 'fuelType', 'tax', 'mpg', 'engineSize'])
+            # Create the input dataframe
+            input_df = pd.DataFrame(data=[[brand, model, year, gearbox, mileage, fuelType, tax, mpg, engineSize]],
+                                    columns=['brand', 'model', 'year', 'transmission', 'mileage',  'fuelType', 'tax', 'mpg', 'engineSize'])
 
-            # # Get the prediction
-            # prediction = ai_model.predict(input_df)[0]
+            # Feature Engineering
+            input_df = featureEngineering(input_df)
 
-            # # Round the prediction to 2 decimal places
-            # prediction = round(prediction, 2)
+            # Get the prediction
+            prediction = ai_model.predict(input_df)[0]
 
-            # # Show the prediction result
-            # flash(f"Your car is worth €{prediction:,}.", "success")
-            flash("Prediction: ", "success")
+            # Round the prediction to 2 decimal places
+            prediction = round(prediction, 2)
+
+            # Show the prediction result
+            flash(f"Your car is worth €{prediction:,}.", "success")
 
         else:
             flash("Error cannot proceed", "error")
@@ -71,3 +89,9 @@ def getModels(brand):
     df =  df.sort_values(by=['model']).reset_index(drop=True)
     # Convert to list json
     return df['model'].to_json(orient='index'), 200
+
+# Utility Functions
+def featureEngineering(X):
+    df = pd.DataFrame(X.reset_index(drop=True))
+    df['mileagePerYear'] = df['mileage']/(2021 - df['year'])
+    return df
