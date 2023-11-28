@@ -3,9 +3,9 @@
 <!-- The block content replace the one encapsulated in layout.html -->
 {% block content %}
 <div class="h-full w-full is-flex is-flex-direction-column">
-    <legend class="is-size-3 has-text-weight-bold my-6 has-text-black has-text-centered is-family-code">
+    <div class="is-size-3 has-text-weight-bold my-6 has-text-black has-text-centered is-family-code">
         {{title}}
-    </legend>
+    </div>
     <form name="formPredict" action="/predict" method="post" onkeypress="return event.keyCode != 13" novalidate class="is-flex is-flex-direction-column is-flex-grow-1">
         <fieldset class="form-group is-flex is-flex-direction-column is-flex-grow-1 is-align-items-center">
             {{ form.hidden_tag() }}
@@ -207,40 +207,19 @@
                     </div>
                 </div>
 
-                <script>
-                    const setValue = () => {
-                        let range = document.querySelector('#mileage');
-                        let rangeV = document.querySelector('.bubble');
-                        const newValue = Number((range.value - range.min) * 100 / (range.max - range.min))
-                        const newPosition = 10 - (newValue * 0.2);
-                        // Format range with commas as thousands separators
-                        range = range.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-                        rangeV.innerHTML = `<span>${range}</span>`;
-                        rangeV.style.left = `calc(${newValue}% + (${newPosition}px))`;
-                    };
-
-                    document.addEventListener("DOMContentLoaded", () => {
-                        setValue();
-                        let range = document.querySelector('#mileage');
-                        range.addEventListener("input", setValue);
-                    });
-                </script>
-
                 <div class="is-flex is-flex-direction-column w-25">
                     <!-- Mileage -->
                     <div class="field">
-                        <label class="label m-0">{{ form.mileage.label }}</label>
-                        <p class="help pb-5">Use arrow keys for more precision</p>
+                        <label class="label">{{ form.mileage.label }}</label>
                         <div class="control">
-                            {{ form.mileage(step="250") }}
-                            <div class="range-value bubble"></div>
+                            {{ form.mileage(class_="input") }}
                         </div>
+                        <p class="help">Mileage is in kilometers (km)</p>
                         {% for error in form.mileage.errors %}
                         <span class="error-message">
                             <p class="help">{{ error }}</p>
                         </span>
                         {% endfor %}
-                        <p class="help">Mileage is in kilometers (km)</p>
                     </div>
 
                     <!-- Fuel Type -->

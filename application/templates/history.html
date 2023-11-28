@@ -2,9 +2,76 @@
 {% extends "layout.html" %}
 <!-- The block content replace the one encapsulated in layout.html -->
 {% block content %}
-<div class="h-full">
-    <div class="is-size-3">
-        <h1>History</h1>
+<div class="h-full w-full">
+    <div class="is-size-3 has-text-weight-bold my-6 has-text-black has-text-centered is-family-code">
+        {{title}}
     </div>
+
+    <!-- Flash message -->
+    {% with messages = get_flashed_messages(with_categories=true)%}
+    {% if messages %}
+    <div class="is-flex is-justify-content-center pb-6 w-full">
+        {% for category, message in messages %}
+        <div class="notification {% if category == 'success' %}is-primary {% else %}is-danger {% endif %} w-50">
+            <p class="has-text-centered">{{ message }}</p>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    {% if entries|length > 0 %}
+    <div class="table-container">
+        <table class="table is-hoverable is-fullwidth">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Brand</th>
+                    <th>Model</th>
+                    <th>Year</th>
+                    <th>Transmission</th>
+                    <th>Engine Size</th>
+                    <th>Fuel Type</th>
+                    <th>Mileage</th>
+                    <th>Tax</th>
+                    <th>Miles Per Gallon</th>
+                    <th>Prediction</th>
+                    <th>Timestamp</th>
+                    <th>Delete</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in entries %}
+                <tr>
+                    <th>{{ loop.index }}</th>
+                    <td>{{ entry.brand }}</td>
+                    <td>{{ entry.model }}</td>
+                    <td>{{ entry.year }}</td>
+                    <td>{{ entry.transmission }}</td>
+                    <td>{{ entry.engineSize }}</td>
+                    <td>{{ entry.fuelType }}</td>
+                    <td>{{ entry.mileage }}</td>
+                    <td>{{ entry.tax }}</td>
+                    <td>{{ entry.mpg }}</td>
+                    <td>£{{ "{:,.2f}".format(entry.prediction) }}</td>
+                    <td>{{ entry.prediction_date.strftime("%d %b %y %H:%M") }}</td>
+                    <td>
+                        <form name="formRemove" action="/remove" method="POST">
+                            <input type="hidden" name="id" value="{{ entry.id }}">
+                            <button class="button is-danger is-small" type="submit" value="Remove">Remove</button>
+                        </form>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="is-size-4 my-6 has-text-black has-text-centered is-family-code">
+        <div class="mt-6">{% include "svgs/waiting.html" %}</div>
+        <p>No entries found for now...</p>
+        <p>Head over to our <a href="/predict" class="has-text-link is-underlined">prediction page</a> to make a prediction!</p>
+    </div>
+    {% endif %}
+    </p>
 </div>
 {% endblock %}

@@ -17,7 +17,7 @@ class PredictionForm(FlaskForm):
     engineSize = FloatField('Engine Size', validators=[InputRequired(), NumberRange(min=0, max=7.5, message='Engine Size must be between 0 and 7.5')])
 
     # Highest: 323_000
-    mileage = IntegerRangeField('Mileage', validators=[InputRequired(), NumberRange(min=0, max=500_000, message='Mileage must be between 0 and 500,000')])
+    mileage = IntegerField('Mileage', validators=[InputRequired(), NumberRange(min=0, max=500_000, message='Mileage must be between 0 and 500,000')])
 
     fuelType = RadioField('Fuel Type', choices=[('Petrol', 'Petrol'), ('Diesel', 'Diesel'), ('Hybrid', 'Hybrid'), ('Electric', 'Electric')], validators=[InputRequired()])
 

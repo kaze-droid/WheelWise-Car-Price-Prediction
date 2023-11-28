@@ -93,7 +93,18 @@ def predict():
 
 @app.route('/history')
 def history():
-    return render_template("history.html", history=True)
+    return render_template("history.html", history=True, title="WheelWise Prediction History", entries=get_entries())
+
+# Used for removing entries
+@app.route('/remove', methods=['POST'])
+def remove():
+    # Get the id from the form
+    req = request.form
+    id = req.get('id')
+    # Delete the entry
+    delete_entry(id)
+    # Redirect to history page
+    return render_template("history.html", history=True, title="WheelWise Prediction History", entries=get_entries())
 
 
 # API Routes
@@ -115,6 +126,7 @@ def featureEngineering(X):
     df['mileagePerYear'] = df['mileage']/(2021 - df['year'])
     return df
 
+# Prediction Entries
 def add_entry(new_entry):
     try:
         db.session.add(new_entry)
@@ -123,3 +135,22 @@ def add_entry(new_entry):
     except Exception as e:
         db.session.rollback()
         flash(e, "error")
+
+def get_entries():
+    try:
+        entries = db.session.execute(db.select(PredEntry).order_by(PredEntry.id)).scalars().all()
+        return entries
+    except Exception as e:
+        db.session.rollback()
+        flash(e, "error")
+        return 0
+
+def delete_entry(id):
+    try:
+        entry = db.get_or_404(PredEntry, id)
+        db.session.delete(entry)
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        flash(e, "error")
+        return 0
