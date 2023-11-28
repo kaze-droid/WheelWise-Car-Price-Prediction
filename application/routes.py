@@ -1,4 +1,6 @@
-from application import app, ai_model
+from application import app, ai_model, db
+from application.models import PredEntry
+from datetime import datetime, timezone, timedelta
 from flask import render_template, request, flash
 from application.forms import PredictionForm
 import pandas as pd
@@ -59,11 +61,28 @@ def predict():
             # Get the prediction
             prediction = ai_model.predict(input_df)[0]
 
-            # Round the prediction to 2 decimal places
-            prediction = round(prediction, 2)
+            # # Round the prediction to 2 decimal places
+            # prediction = round(prediction, 2)
+
+            # Since SGT is 8 hours ahead compared to UTC
+            SGT = timezone(timedelta(hours=8))
+
+            # Create the new entry
+            new_entry = PredEntry(brand=brand, 
+                                  model=model, 
+                                  year=year, 
+                                  transmission=gearbox, 
+                                  mileage=mileage, 
+                                  fuelType=fuelType, 
+                                  tax=tax, 
+                                  mpg=mpg, 
+                                  engineSize=engineSize, 
+                                  prediction= round(prediction, 2), 
+                                  prediction_date=datetime.now(SGT))
+            add_entry(new_entry)
 
             # Show the prediction result
-            flash(f"Your car is worth €{prediction:,}.", "success")
+            flash(f"Your car is worth £{prediction:,.2f}.", "success")
 
         else:
             flash("Error cannot proceed", "error")
@@ -95,3 +114,12 @@ def featureEngineering(X):
     df = pd.DataFrame(X.reset_index(drop=True))
     df['mileagePerYear'] = df['mileage']/(2021 - df['year'])
     return df
+
+def add_entry(new_entry):
+    try:
+        db.session.add(new_entry)
+        db.session.commit()
+        return new_entry.id
+    except Exception as e:
+        db.session.rollback()
+        flash(e, "error")

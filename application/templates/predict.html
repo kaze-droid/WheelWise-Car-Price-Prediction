@@ -2,26 +2,21 @@
 {% extends "layout.html" %}
 <!-- The block content replace the one encapsulated in layout.html -->
 {% block content %}
-<div class="h-full w-full">
-    <form name="formPredict" action="/predict" method="post" onkeypress="return event.keyCode != 13" novalidate>
-        <fieldset class="form-group">
-            <legend class="is-size-3 has-text-weight-bold mb-6 has-text-black has-text-centered is-family-code">
-                {{title}}</legend>
+<div class="h-full w-full is-flex is-flex-direction-column">
+    <legend class="is-size-3 has-text-weight-bold my-6 has-text-black has-text-centered is-family-code">
+        {{title}}
+    </legend>
+    <form name="formPredict" action="/predict" method="post" onkeypress="return event.keyCode != 13" novalidate class="is-flex is-flex-direction-column is-flex-grow-1">
+        <fieldset class="form-group is-flex is-flex-direction-column is-flex-grow-1 is-align-items-center">
             {{ form.hidden_tag() }}
-            
+
             {% with messages = get_flashed_messages(with_categories=true)%}
             {% if messages %}
-            <div class="is-flex is-justify-content-center pb-6">
+            <div class="is-flex is-justify-content-center pb-6 w-full">
                 {% for category, message in messages %}
-                {% if category == "success" %}
-                <div class="notification is-primary w-50">
-                    <p>{{ message }}</p>
+                <div class="notification {% if category == 'success' %}is-primary {% else %}is-danger {% endif %} w-50">
+                    <p class="has-text-centered">{{ message }}</p>
                 </div>
-                {% elif category == "error" %}
-                <div class="notification is-danger w-50">
-                    <p>{{ message }}</p>
-                </div>
-                {% endif %}
                 {% endfor %}
             </div>
             {% endif %}
@@ -79,7 +74,6 @@
 
                         document.addEventListener("DOMContentLoaded", () => {
                             const brandElement = document.querySelector("#brand");
-                            brandElement.value = 'audi'
                             dynamicModel();
                             brandElement.addEventListener("change", dynamicModel);
                         });
@@ -125,6 +119,10 @@
                         document.addEventListener("DOMContentLoaded", () => {
                             const regYear = document.querySelector("#regYear");
 
+                            // Call validate Year once when page loads
+                            validateYear();
+
+                            // Detect if user clicks outside of input field
                             document.addEventListener("click", function (e) {
                                 const isClickedOutside = !regYear.contains(e.target);
 
@@ -146,10 +144,15 @@
                             const minValue = 1970;
                             const maxValue = 2020;
 
-                            let yearValue = parseInt(regYear.value);
+                            let yearValue = regYear.value;
+                            console.log(yearValue);
+                            console.log(yearValue === "");
 
-                            if (yearValue < minValue || yearValue > maxValue) {
-                                regYear.value = minValue;
+                            // If the input is empty, set it to the middle of the range
+                            if (yearValue === "") {
+                                regYear.value = (minValue + maxValue) / 2;
+                            } else if (parseInt(yearValue) < minValue || parseInt(yearValue) > maxValue) {
+                                regYear.value = (minValue + maxValue) / 2;
                             }
                         }
                     </script>
@@ -162,7 +165,7 @@
                             </button>
                         </p>
                         <div class="control is-expanded">
-                            {{ form.regYear(class_="w-full input", id_="regYear", **{"value":"1970"}) }}
+                            {{ form.regYear(class_="w-full input", id_="regYear") }}
                         </div>
                         <p class="control">
                             <button class="button is-primary" type="button" id="up" onclick="increment()">
@@ -226,7 +229,8 @@
                 <div class="is-flex is-flex-direction-column w-25">
                     <!-- Mileage -->
                     <div class="field">
-                        <label class="label pb-3">{{ form.mileage.label }}</label>
+                        <label class="label m-0">{{ form.mileage.label }}</label>
+                        <p class="help pb-5">Use arrow keys for more precision</p>
                         <div class="control">
                             {{ form.mileage(step="250") }}
                             <div class="range-value bubble"></div>
@@ -285,4 +289,5 @@
             </div>
         </div>
     </form>
-    {% endblock %}
+</div>
+{% endblock %}

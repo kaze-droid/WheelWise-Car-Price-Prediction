@@ -13,14 +13,14 @@
 
 <body>
     <div class="w-full is-flex is-flex-direction-column outerContainer">
-        <div class="w-full h-full">
+        <div class="w-full h-full is-flex is-flex-direction-column">
             {% include "includes/nav.html" %}
-            <div class="is-flex container mainContent p-6 max-w-full">
+            <div class="is-flex container mainContent p-6 m-0 max-w-full">
                 {% block content %}
                 {% endblock %}
             </div>
+            {% include "includes/footer.html" %}
         </div>
-        {% include "includes/footer.html" %}
     </div>
 </body>
 
