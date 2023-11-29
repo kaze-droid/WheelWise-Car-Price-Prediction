@@ -1,0 +1,99 @@
+<!-- Inherits from layout.html -->
+{% extends "layout.html" %}
+<!-- The block content replace the one encapsulated in layout.html -->
+{% block content %}
+<div class="h-full w-full is-flex is-justify-content-center">
+    <form name="formRegister" class="box w-50" method="post" novalidate>
+        {{ form.hidden_tag() }}
+        <div class="is-size-3 has-text-weight-bold my-6 has-text-black has-text-centered is-family-code">
+            {{title}}
+            <p class="is-size-6 has-text-weight-light">Sign Up for an account to start predicting!</p>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true)%}
+        {% if messages %}
+        <div class="is-flex is-justify-content-center pb-6 w-full">
+            {% for category, message in messages %}
+            <div class="notification {% if category == 'success' %}is-primary {% else %}is-danger {% endif %} w-50">
+                <p class="has-text-centered">{{ message }}</p>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        <div>
+            <div class="field">
+                <label class="label">{{ form.username.label }}</label>
+                <div class="control">
+                    {% if form.username.errors|length > 0 %}
+                        {{ form.username(class_="input is-danger") }}
+                    {% else %}
+                        {{ form.username(class_="input") }}
+                    {% endif %}
+                </div>
+                {% for error in form.username.errors %}
+                <span class="error-message">
+                    <p class="help">{{ error }}</p>
+                </span>
+                {% endfor %}
+            </div>
+
+            <div class="field">
+                <label class="label">{{ form.email.label }}</label>
+                <div class="control">
+                    {% if form.email.errors|length > 0 %}
+                        {{ form.email(class_="input is-danger") }}
+                    {% else %}
+                        {{ form.email(class_="input") }}
+                    {% endif %}
+                </div>
+                {% for error in form.email.errors %}
+                <span class="error-message">
+                    <p class="help">{{ error }}</p>
+                </span>
+                {% endfor %}
+            </div>
+
+            <div class="field">
+                <label class="label">{{ form.password.label }}</label>
+                <div class="control">
+                    {% if form.password.errors|length > 0 %}
+                        {{ form.password(class_="input is-danger") }}
+                    {% else %}
+                        {{ form.password(class_="input") }}
+                    {% endif %}
+                </div>
+                {% for error in form.password.errors %}
+                <span class="error-message">
+                    <p class="help">{{ error }}</p>
+                </span>
+                {% endfor %}
+            </div>
+
+            <div class="field">
+                <label class="label">{{ form.confirmPassword.label }}</label>
+                <div class="control">
+                    {% if form.confirmPassword.errors|length > 0 %}
+                        {{ form.confirmPassword(class_="input is-danger") }}
+                    {% else %}
+                        {{ form.confirmPassword(class_="input") }}
+                    {% endif %}
+                </div>
+                {% for error in form.confirmPassword.errors %}
+                <span class="error-message">
+                    <p class="help">{{ error }}</p>
+                </span>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <p class="is-size-6 has-text-weight-light has-text-link"><a href="/login"
+                    class="has-text-link is-underlined">Already have an existing account?</a></p>
+            {{ form.submit(class_='button is-primary mt-3', style="width: 5rem;") }}
+        </div>
+
+    </form>
+</div>
+{% endblock %}

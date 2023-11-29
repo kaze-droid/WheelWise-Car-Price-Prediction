@@ -1,19 +1,23 @@
-from application import app, ai_model, db
-from application.models import PredEntry
+from application import app, ai_model, db, bcrypt, login_manager
+from application.models import PredEntry, User
 from datetime import datetime, timezone, timedelta
-from flask import render_template, request, flash
-from application.forms import PredictionForm
+from flask import render_template, request, flash, redirect
+from application.forms import PredictionForm, UserRegisterForm, UserLoginForm
+from flask_login import login_user, current_user, logout_user, login_required
 import pandas as pd
 import json
 
-# userData = {
-#     "loggedIn": True,
-#     "user": {"username": "TestData"}
-# }
+login_manager.init_app(app)
+# Redirect to login page if user is not logged in
+login_manager.login_view = 'login'
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 @app.route('/')
+@app.route('/home')
 def home():
-    # return render_template("index.html", index=True, **userData)
     return render_template("index.html", index=True)
 
 @app.route('/about')
@@ -21,6 +25,7 @@ def about():
     return render_template("about.html", about=True)
 
 @app.route('/predict', methods=['GET', 'POST'])
+@login_required
 def predict():
     form = PredictionForm()
     # Get the brand option
@@ -61,11 +66,11 @@ def predict():
             # Get the prediction
             prediction = ai_model.predict(input_df)[0]
 
-            # # Round the prediction to 2 decimal places
-            # prediction = round(prediction, 2)
-
             # Since SGT is 8 hours ahead compared to UTC
             SGT = timezone(timedelta(hours=8))
+
+            # Get the user id
+            user_id = current_user.id
 
             # Create the new entry
             new_entry = PredEntry(brand=brand, 
@@ -78,7 +83,8 @@ def predict():
                                   mpg=mpg, 
                                   engineSize=engineSize, 
                                   prediction= round(prediction, 2), 
-                                  prediction_date=datetime.now(SGT))
+                                  prediction_date=datetime.now(SGT),
+                                  user_id=user_id)
             add_entry(new_entry)
 
             # Show the prediction result
@@ -92,8 +98,64 @@ def predict():
     return render_template("predict.html", predict=True, form=form, title="WheelWise Car Prediction")
 
 @app.route('/history')
+@login_required
 def history():
-    return render_template("history.html", history=True, title="WheelWise Prediction History", entries=get_entries())
+    user_id = current_user.id
+    return render_template("history.html", history=True, title="WheelWise Prediction History", entries=get_entries(PredEntry, whereClause=PredEntry.user_id==user_id))
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    form = UserRegisterForm()
+
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            # Get the form data
+            username = form.username.data
+            email = form.email.data
+            password = form.password.data
+            # Hash the password
+            hashed_password = bcrypt.generate_password_hash(password)
+
+            # Since SGT is 8 hours ahead compared to UTC
+            SGT = timezone(timedelta(hours=8))
+
+            # Create the new user
+            new_user = User(username=username, email=email, password=hashed_password, creation_date=datetime.now(SGT))
+            add_entry(new_user)
+
+            flash("Account created successfully!", "success")
+        else:
+            flash(f"Error creating new user!", "error")
+    return render_template("register.html", register=True, form=form, title="WheelWise Register")
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    form = UserLoginForm()
+
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            # Get the form data
+            email = form.email.data
+            password = form.password.data
+
+            # Get the user
+            user = get_user(email)
+
+            # Check if user exists and password is correct (hash from db matches form password)
+            if user and bcrypt.check_password_hash(user.password, password):
+                login_user(user)
+                return redirect('/')
+            else:
+                flash("Login unsuccessful!", "error")
+        else:
+            flash("Error logging in!", "error")
+    return render_template("login.html", login=True, form=form, title="WheelWise Login")
+
+@app.route('/logout', methods=['POST'])
+@login_required
+def logout():
+    logout_user()
+    return redirect('/')
 
 # Used for removing entries
 @app.route('/remove', methods=['POST'])
@@ -102,9 +164,9 @@ def remove():
     req = request.form
     id = req.get('id')
     # Delete the entry
-    delete_entry(id)
+    delete_entry(PredEntry, id)
     # Redirect to history page
-    return render_template("history.html", history=True, title="WheelWise Prediction History", entries=get_entries())
+    return redirect('/history')
 
 
 # API Routes
@@ -136,21 +198,30 @@ def add_entry(new_entry):
         db.session.rollback()
         flash(e, "error")
 
-def get_entries():
+def get_entries(model, whereClause=True):
     try:
-        entries = db.session.execute(db.select(PredEntry).order_by(PredEntry.id)).scalars().all()
+        entries = db.session.execute(db.select(model).where(whereClause).order_by(model.id)).scalars().all()
         return entries
     except Exception as e:
         db.session.rollback()
         flash(e, "error")
         return 0
 
-def delete_entry(id):
+def delete_entry(model, id):
     try:
-        entry = db.get_or_404(PredEntry, id)
+        entry = db.get_or_404(model, id)
         db.session.delete(entry)
         db.session.commit()
     except Exception as e:
         db.session.rollback()
         flash(e, "error")
         return 0
+    
+def get_user(email):
+    try:
+        user = User.query.filter_by(email=email).first()
+        return user
+    except Exception as e:
+        flash(e, "error")
+        return 0
+    

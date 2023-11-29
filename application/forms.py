@@ -1,6 +1,8 @@
 from flask_wtf import FlaskForm
-from wtforms import RadioField, IntegerField, FloatField, IntegerRangeField, SelectField, SubmitField
-from wtforms.validators import Length, InputRequired, ValidationError, NumberRange
+from wtforms import RadioField, IntegerField, FloatField, SelectField, SubmitField
+from wtforms import StringField, EmailField, PasswordField
+from wtforms.validators import Length, InputRequired, ValidationError, NumberRange, EqualTo
+from application.models import User
 
 class PredictionForm(FlaskForm):
     brands = [('audi','Audi'),('bmw','BMW'),('merc','Mercedes'), ('ford', 'Ford'), ('hyundi', 'Hyundi'), ('skoda', 'Skoda'), ('toyota', 'Toyota'), ('vauxhall', 'Vauxhall'), ('vw', 'VolksWagen')]
@@ -29,5 +31,29 @@ class PredictionForm(FlaskForm):
 
     submit = SubmitField('Predict Price')
 
+class UserRegisterForm(FlaskForm):
+    username = StringField('Username', validators=[InputRequired(), Length(min=2, max=20)], render_kw={'placeholder': 'JohnDoe'})
+    email = EmailField('Email', validators=[InputRequired()], render_kw={'placeholder': 'johndoe@gmail.com'})
+    password = PasswordField('Password', validators=[InputRequired(), EqualTo('confirmPassword', message='Passwords must match'), Length(min=12, max=80)], render_kw={'placeholder': '********'})
+    confirmPassword = PasswordField('Confirm Password', validators=[InputRequired(), EqualTo('password', message='Passwords must match')], render_kw={'placeholder': '********'})
+    submit = SubmitField('Sign Up')
 
+    def validate_email(self, email):
+        # Check if email already exists
+        existing_email = User.query.filter_by(email=email.data).first()
+
+        if existing_email:
+            raise ValidationError('Email already exists!')
+        
+class UserLoginForm(FlaskForm):
+    email = EmailField('Email', validators=[InputRequired()])
+    password = PasswordField('Password', validators=[InputRequired()])
+    submit = SubmitField('Login')
+
+    def validate_email(self, email):
+        # Check if email does not exist
+        existing_email = User.query.filter_by(email=email.data).first()
+
+        if not existing_email:
+            raise ValidationError('Email does not exist!')
 

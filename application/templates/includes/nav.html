@@ -63,6 +63,14 @@
             </div>
         </div>
 
+        <!-- Handle Signout -->
+        <script>
+            handleSignout = () => {
+                const formSignout = document.querySelector('form[name="formSignout"]');
+                formSignout.submit();
+            }
+        </script>
+
         <div class="navbar-menu">
             <div class="navbar-start w-full is-justify-content-end is-align-items-center">
                 <div class="navbar-item m-6 mb-0">
@@ -70,21 +78,22 @@
                         <div class="dropdown-trigger">
                             <figure class="image is-64x64" aria-controls="dropdown-menu">
                                 <img class="is-rounded profileIcon"
-                                    src="{% if loggedIn %}https://ui-avatars.com/api/?name={{  user.username  }}&size=64&rounded=True&length=1&bold=true{% else %}{{ url_for('static',filename='images/blankProfile.png')}}{% endif %}">
+                                    src="{% if current_user.is_authenticated %}https://ui-avatars.com/api/?name={{  current_user.username  }}&size=64&rounded=True&length=1&bold=true{% else %}{{ url_for('static',filename='images/blankProfile.png')}}{% endif %}">
                             </figure>
                         </div>
 
-                        {% if loggedIn %}
+                        {% if current_user.is_authenticated %}
                         <div class="dropdown-menu" id="dropdown-menu" role="menu">
                             <div class="dropdown-content">
                                 <a href="/" class="dropdown-item is-size-5 has-text-black">
-                                    Switch Account
+                                    View Profile
                                 </a>
-                                <a href="/" class="dropdown-item is-size-5 has-text-black">
-                                    Sign Out
-                                </a>
+                                <form name="formSignout" action='/logout' method="post">
+                                    <input type="hidden" name="id" value="{{ current_user.id }}">
+                                    <a class="dropdown-item is-size-5 has-text-black" onclick="handleSignout()">Sign Out</a>
+                                </form>
                                 <hr class="dropdown-divider">
-                                <a href="/" class="dropdown-item is-size-5 has-text-black">
+                                <a href="/about" class="dropdown-item is-size-5 has-text-black">
                                     Help
                                 </a>
                             </div>
@@ -93,14 +102,14 @@
                         {% else %}
                         <div class="dropdown-menu" id="dropdown-menu" role="menu">
                             <div class="dropdown-content">
-                                <a href="/" class="dropdown-item is-size-5 has-text-black">
+                                <a href="/login" class="dropdown-item is-size-5 has-text-black">
                                     Sign In
                                 </a>
-                                <a href="/" class="dropdown-item is-size-5 has-text-black">
+                                <a href="/register" class="dropdown-item is-size-5 has-text-black">
                                     Sign Up
                                 </a>
                                 <hr class="dropdown-divider">
-                                <a href="/" class="dropdown-item is-size-5 has-text-black">
+                                <a href="/about" class="dropdown-item is-size-5 has-text-black">
                                     Help
                                 </a>
                             </div>
@@ -160,20 +169,21 @@
                     <div class="dropdown-trigger">
                         <figure class="image is-64x64" aria-controls="dropdown-menu">
                             <img class="is-rounded profileIcon"
-                                src="{% if loggedIn %}https://ui-avatars.com/api/?name={{  user.username  }}&size=64&rounded=True&length=1&bold=true{% else %}{{ url_for('static',filename='images/blankProfile.png')}}{% endif %}">
+                                src="{% if current_user.is_authenticated %}https://ui-avatars.com/api/?name={{  current_user.username  }}&size=64&rounded=True&length=1&bold=true{% else %}{{ url_for('static',filename='images/blankProfile.png')}}{% endif %}">
                         </figure>
                     </div>
                     {% if loggedIn %}
                     <div class="dropdown-menu" id="dropdown-menu" role="menu">
                         <div class="dropdown-content">
                             <a href="/" class="dropdown-item is-size-5 has-text-black">
-                                Switch Account
+                                View Profile
                             </a>
-                            <a href="/" class="dropdown-item is-size-5 has-text-black">
-                                Sign Out
-                            </a>
+                            <form name="formSignout" action='/logout' method="post">
+                                <input type="hidden" name="id" value="{{ current_user.id }}">
+                                <a class="dropdown-item is-size-5 has-text-black" onclick="handleSignout()">Sign Out</a>
+                            </form>
                             <hr class="dropdown-divider">
-                            <a href="/" class="dropdown-item is-size-5 has-text-black">
+                            <a href="/about" class="dropdown-item is-size-5 has-text-black">
                                 Help
                             </a>
                         </div>
@@ -182,14 +192,14 @@
                     {% else %}
                     <div class="dropdown-menu" id="dropdown-menu" role="menu">
                         <div class="dropdown-content">
-                            <a href="/" class="dropdown-item is-size-5 has-text-black">
+                            <a href="/login" class="dropdown-item is-size-5 has-text-black">
                                 Sign In
                             </a>
-                            <a href="/" class="dropdown-item is-size-5 has-text-black">
+                            <a href="/register" class="dropdown-item is-size-5 has-text-black">
                                 Sign Up
                             </a>
                             <hr class="dropdown-divider">
-                            <a href="/" class="dropdown-item is-size-5 has-text-black">
+                            <a href="/about" class="dropdown-item is-size-5 has-text-black">
                                 Help
                             </a>
                         </div>
