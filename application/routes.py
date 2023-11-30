@@ -188,7 +188,7 @@ def featureEngineering(X):
     df['mileagePerYear'] = df['mileage']/(2021 - df['year'])
     return df
 
-# Prediction Entries
+# Model Functions
 def add_entry(new_entry):
     try:
         db.session.add(new_entry)
@@ -219,7 +219,7 @@ def delete_entry(model, id):
     
 def get_user(email):
     try:
-        user = User.query.filter_by(email=email).first()
+        user = User.query.filter_by(email=email).first_or_404()
         return user
     except Exception as e:
         flash(e, "error")
