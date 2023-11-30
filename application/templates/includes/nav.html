@@ -85,7 +85,7 @@
                         {% if current_user.is_authenticated %}
                         <div class="dropdown-menu" id="dropdown-menu" role="menu">
                             <div class="dropdown-content">
-                                <a href="/" class="dropdown-item is-size-5 has-text-black">
+                                <a href="/profile" class="dropdown-item is-size-5 has-text-black">
                                     View Profile
                                 </a>
                                 <form name="formSignout" action='/logout' method="post">
@@ -175,7 +175,7 @@
                     {% if loggedIn %}
                     <div class="dropdown-menu" id="dropdown-menu" role="menu">
                         <div class="dropdown-content">
-                            <a href="/" class="dropdown-item is-size-5 has-text-black">
+                            <a href="/profile" class="dropdown-item is-size-5 has-text-black">
                                 View Profile
                             </a>
                             <form name="formSignout" action='/logout' method="post">

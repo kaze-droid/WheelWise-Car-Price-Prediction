@@ -1,0 +1,53 @@
+<!-- Inherits from layout.html -->
+{% extends "layout.html" %}
+<!-- The block content replace the one encapsulated in layout.html -->
+{% block content %}
+<div class="h-full w-full">
+    <div class="is-flex is-align-items-center">
+        <div class="mr-3">
+            <img class="is-rounded profileIcon"
+                src="https://ui-avatars.com/api/?name={{  current_user.username  }}&size=128&rounded=True&length=1&bold=true">
+        </div>
+        <div class="ml-3">
+            <div>
+                <p class="is-size-3 has-text-weight-bold has-text-black">{{ current_user.email }}</p>
+            </div>
+            <div>
+                <strong class="has-text-info">@{{ current_user.username }}</strong>
+            </div>
+            <div>
+                <div>Member Since: <strong class="has-text-info">{{ current_user.creation_date.strftime("%d %b %Y")
+                        }}</strong></div>
+            </div>
+            <div class="icon-text">
+                <a href="/history">
+                    <span class="has-text-black">
+                        <strong>Check out previous predictions </strong>
+                        <span class="icon m-0" style="vertical-align: middle;justify-content: start !important;">
+                            <i class="fas fa-angle-right"></i>
+                        </span>
+                </a>
+                </span>
+            </div>
+        </div>
+    </div>
+    <br>
+    <div>
+        <div class="is-size-4 mt-6 has-text-black">Change username</div>
+        <hr class="my-2">
+        <p class="mb-3 is-family-primary">Changing your username can have unintended side effects.</p>
+        <button class="button is-dark is-family-monospace">Change username</button>
+    </div>
+    <div>
+        <div class="is-size-4 mt-6 has-text-black">Change password</div>
+        <hr class="mt-2">
+        <button class="button is-dark is-family-monospace">Change password</button>
+    </div>
+    <div>
+        <div class="is-size-4 mt-6 has-text-danger-dark">Delete account</div>
+        <hr class="mt-2">
+        <p class="mb-3 is-family-primary">Once you delete your account, there is no going back. Please be certain.</p>
+        <button class="button is-danger is-outlined is-family-monospace">Delete your account</button>
+    </div>
+</div>
+{% endblock %}

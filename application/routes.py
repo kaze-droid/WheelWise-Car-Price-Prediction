@@ -18,7 +18,7 @@ def load_user(user_id):
 @app.route('/')
 @app.route('/home')
 def home():
-    return render_template("index.html", index=True)
+    return render_template("index.html", index=True, title="Home")
 
 @app.route('/about')
 def about():
@@ -95,13 +95,13 @@ def predict():
 
 
 
-    return render_template("predict.html", predict=True, form=form, title="WheelWise Car Prediction")
+    return render_template("predict.html", predict=True, form=form, title="Prediction", contentTitle="WheelWise Car Prediction")
 
 @app.route('/history')
 @login_required
 def history():
     user_id = current_user.id
-    return render_template("history.html", history=True, title="WheelWise Prediction History", entries=get_entries(PredEntry, whereClause=PredEntry.user_id==user_id))
+    return render_template("history.html", history=True, title="History", contentTitle="WheelWise Prediction History", entries=get_entries(PredEntry, whereClause=PredEntry.user_id==user_id))
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -126,7 +126,7 @@ def register():
             flash("Account created successfully!", "success")
         else:
             flash(f"Error creating new user!", "error")
-    return render_template("register.html", register=True, form=form, title="WheelWise Register")
+    return render_template("register.html", register=True, form=form, title="Sign Up", contentTitle="WheelWise Registration")
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -144,18 +144,24 @@ def login():
             # Check if user exists and password is correct (hash from db matches form password)
             if user and bcrypt.check_password_hash(user.password, password):
                 login_user(user)
+                current_user.last_login = datetime.now(timezone(timedelta(hours=8)))
                 return redirect('/')
             else:
                 flash("Login unsuccessful!", "error")
         else:
             flash("Error logging in!", "error")
-    return render_template("login.html", login=True, form=form, title="WheelWise Login")
+    return render_template("login.html", login=True, form=form, title="Login", contentTitle="WheelWise Login")
 
 @app.route('/logout', methods=['POST'])
 @login_required
 def logout():
     logout_user()
     return redirect('/')
+
+@app.route('/profile')
+@login_required
+def profile():
+    return render_template("profile.html", title="Profile", contentTitle="Profile Page")
 
 # Used for removing entries
 @app.route('/remove', methods=['POST'])
