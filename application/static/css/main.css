@@ -130,6 +130,15 @@ hr {
     height: 0.125rem;
 }
 
+/* About Page */
+.banner {
+    background-color: #deded4;
+}
+
+.bannerItem {
+    flex: 1 1 0;
+}
+
 /* Predict Page */
 .button.is-static {
     color: #000000

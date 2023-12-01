@@ -2,10 +2,137 @@
 {% extends "layout.html" %}
 <!-- The block content replace the one encapsulated in layout.html -->
 {% block content %}
-<div>
-    <!-- Desktop Version -->
-    <div class="is-full is-hidden-touch m-auto">
-        <div>test</div>
+<div class="h-full w-full">
+    <div class="is-size-1 has-text-centered has-text-black is-flex-grow-1 space-x-3 is-family-code">
+        <strong class="has-text-link-dark">About</strong> WheelWise
     </div>
+    <div class="is-size-5 has-text-centered my-5 has-text-dark is-family-monospace">
+        <p>WheelWise is a website that allows users to search for second-hand cars and compare them based on their
+            specifications. The website also allows users to register for an account and save their favourite cars to
+            their profile.</p>
+    </div>
+
+    <div class="banner mt-5 pl-6 pb-4">
+        <div class="is-flex is-flex-direction-column is-align-items-center bannerItem">
+            <div class="has-text-weight-bold is-size-3 has-text-black my-4">Sell Your Car in 3 Simple Steps</div>
+            <div class="is-flex">
+                <div class="is-flex is-flex-direction-column is-align-items-center mx-3 bannerItem">
+                    <div>{% include "svgs/submitDetails.html" %}</div>
+                    <strong>Submit Your Details</strong>
+                    <div class="has-text-centered mt-3 w-75">Provide us with the required details to extract the basic
+                        information of your car</div>
+                </div>
+
+                <div class="is-flex is-flex-direction-column is-align-items-center mx-3 bannerItem">
+                    <div>{% include "svgs/carValuation.html" %}</div>
+                    <strong>Instant Price Guide</strong>
+                    <div class="has-text-centered mt-3 w-75">An estimated valuation is generated instantly for your car,
+                        based on our own <a class="has-text-info" href="/predict">AI model</a> trained on similar cars
+                        in our system</div>
+                </div>
+
+                <div class="is-flex is-flex-direction-column is-align-items-center mx-3 bannerItem">
+                    <div>{% include "svgs/redCar.html" %}</div>
+                    <strong>Arrange for a viewing</strong>
+                    <div class="has-text-centered mt-3 w-75">Satisfied with our valuation? We will arrange for a
+                        non-obligation viewing with the buyer to sell your vehicle</div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="pt-6">
+        <div class="has-text-black is-size-3 has-text-centered mt-5 has-text-weight-bold">Why Trust Us?</div>
+
+        <div class="is-flex is-flex-direction-column is-align-items-center mt-3">
+            <div class="is-flex my-3">
+                <div class="bannerItem has-text-centered px-5">
+                    <span class="icon-text is-size-4 has-text-weight-bold has-text-info">
+                        <span class="icon">
+                            <i class="mdi mdi-shield-check"></i>
+                        </span>
+                        <span>Safe and Secure</span>
+                    </span>
+            
+                    <p class="block has-text-centered">
+                        We are committed to protecting your personal data and privacy.
+                        We do not sell your personal data to third parties.
+                    </p>
+                </div>
+        
+                <div class="bannerItem has-text-centered px-5">
+                    <span class="icon-text is-size-4 has-text-weight-bold has-text-info">
+                        <span class="icon">
+                            <i class="mdi mdi-account-multiple-check"></i>
+                        </span>
+                        <span>Trusted by many</span>
+                    </span>
+            
+                    <p class="block has-text-centered">
+                        We have been in the business for more than 10 years and have served more than 100,000 customers.
+                    </p>
+                </div>
+        
+                <div class="bannerItem has-text-centered px-5">
+                    <span class="icon-text is-size-4 has-text-weight-bold has-text-info">
+                        <span class="icon">
+                            <i class="mdi mdi-currency-usd"></i>
+                        </span>
+                        <span>Best Price Guaranteed</span>
+                    </span>
+            
+                    <p class="block has-text-centered">
+                        We have a team of experts who will provide you with the best price for your car.
+                    </p>
+                </div>
+            </div>
+    
+            <div class="is-flex my-3">
+                <div class="bannerItem has-text-centered px-5">
+                    <span class="icon-text is-size-4 has-text-weight-bold has-text-info">
+                        <span class="icon">
+                            <i class="mdi mdi-car"></i>
+                        </span>
+                        <span>Wide Range of Cars</span>
+                    </span>
+            
+                    <p class="block has-text-centered">
+                        We have a wide range of cars for you to choose from. We have cars from all major brands and models.
+                    </p>
+                </div>
+        
+                <div class="bannerItem has-text-centered px-5">
+                    <span class="icon-text is-size-4 has-text-weight-bold has-text-info">
+                        <span class="icon">
+                            <i class="mdi mdi-check-circle-outline"></i>
+                        </span>
+                        <span>Seamless and Convenient</span>
+                    </span>
+            
+                    <p class="block has-text-centered">
+                        We provide a seamless and convenient experience for you to sell your car. We will handle all the paperwork
+                        for you.
+                    </p>
+                </div>
+        
+                <div class="bannerItem has-text-centered px-5">
+                    <span class="icon-text is-size-4 has-text-weight-bold has-text-info">
+                        <span class="icon">
+                            <i class="mdi mdi-routes"></i>
+                        </span>
+                        <span>Transparent and Flexible</span>
+                    </span>
+            
+                    <p class="block has-text-centered">
+                        We are transparent and flexible in our pricing. We will provide you with the best price for your car.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
 </div>
 {% endblock %}
