@@ -1,0 +1,248 @@
+<!-- Inherits from layout.html -->
+{% extends "layout.html" %}
+<!-- The block content replace the one encapsulated in layout.html -->
+{% block content %}
+<div class="h-full w-full">
+    <div class="is-flex is-align-items-center">
+        <div class="mr-3">
+            <img class="is-rounded profileIcon"
+                src="https://ui-avatars.com/api/?name={{  current_user.username  }}&size=128&rounded=True&length=1&bold=true">
+        </div>
+        <div class="ml-3">
+            <div>
+                <p class="is-size-3 has-text-weight-bold has-text-black">{{ current_user.email }}</p>
+            </div>
+            <div>
+                <strong class="has-text-info">@{{ current_user.username }}</strong>
+            </div>
+            <div>
+                <div>Member Since: <strong class="has-text-info">{{ current_user.creation_date.strftime("%d %b %Y")
+                        }}</strong></div>
+            </div>
+            <div class="icon-text">
+                <a href="/history">
+                    <span class="has-text-black">
+                        <strong>Check out previous predictions </strong>
+                        <span class="icon m-0" style="vertical-align: middle;justify-content: start !important;">
+                            <i class="fas fa-angle-right"></i>
+                        </span>
+                </a>
+                </span>
+            </div>
+        </div>
+    </div>
+    <br>
+
+    {% with messages = get_flashed_messages(with_categories=true)%}
+    {% if messages %}
+    <div class="is-flex is-justify-content-center pb-6 w-full">
+        {% for category, message in messages %}
+        <div class="notification {% if category == 'success' %}is-primary {% else %}is-danger {% endif %} w-50">
+            <p class="has-text-centered">{{ message }}</p>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <div>
+        <div class="is-size-4 mt-6 has-text-black">Change username</div>
+        <hr class="my-2">
+        <p class="mb-3 is-family-primary">Changing your username can have unintended side effects.</p>
+        <button class="button is-dark is-family-monospace" id="launchUsernameModal"
+            onclick="handleChangeUsername()">Change username</button>
+    </div>
+
+    <!-- Username modal -->
+    <div class="modal" id="usernameModal">
+        <div class="modal-background"></div>
+
+        <div class="modal-card">
+            <header class="modal-card-head">
+                <button class="delete" aria-label="close" onclick="handleChangeUsername()"></button>
+            </header>
+            <section class="modal-card-body">
+                <div class="is-flex is-justify-content-center">
+                    <form action="/changeUsername" method="POST" class="w-75">
+                        {{ usernameForm.hidden_tag() }}
+
+                        <div class="field mb-4">
+                            <label class="label">{{ usernameForm.username.label }}</label>
+                            <div class="control">
+                                {{ usernameForm.username(class_="input") }}
+                            </div>
+                        </div>
+                        <div class="field is-grouped is-justify-content-center">
+                            <div class="control">
+                                <button class="button is-secondary is-light" type="button"
+                                    onclick="handleChangeUsername()">Cancel</button>
+                            </div>
+                            <div class="control">
+                                {{ usernameForm.submit(class_="button is-success") }}
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Open Up Modal for username -->
+    <script>
+        handleChangeUsername = () => {
+            const launchUsernameModal = document.querySelector('#launchUsernameModal');
+            const usernameModal = document.querySelector('#usernameModal');
+
+            // Check if "is-active" class is present
+            if (launchUsernameModal.classList.contains('is-active')) {
+                launchUsernameModal.classList.remove('is-active');
+                // Close the modal
+                usernameModal.classList.remove('is-active');
+            } else {
+                launchUsernameModal.classList.add('is-active');
+                // Open the modal
+                usernameModal.classList.add('is-active');
+            }
+        }
+    </script>
+
+
+    <div>
+        <div class="is-size-4 mt-6 has-text-black">Change password</div>
+        <hr class="mt-2">
+        <button class="button is-dark is-family-monospace" id="launchPasswordModal"
+            onclick="handleChangePassword()">Change password</button>
+    </div>
+
+    <!-- Password modal -->
+    <div class="modal" id="passwordModal">
+        <div class="modal-background"></div>
+
+        <div class="modal-card">
+            <header class="modal-card-head">
+                <button class="delete" aria-label="close" onclick="handleChangePassword()"></button>
+            </header>
+            <section class="modal-card-body">
+                <div class="is-flex is-justify-content-center">
+                    <form action="/changePassword" method="POST" class="w-75">
+                        {{ passwordForm.hidden_tag() }}
+
+                        <div class="field">
+                            <label class="label">{{ passwordForm.password.label }}</label>
+                            <div class="control">
+                                {{ passwordForm.password(class_="input") }}
+                            </div>
+                        </div>
+                        <div class="field mb-4">
+                            <label class="label">{{ passwordForm.confirmPassword.label }}</label>
+                            <div class="control">
+                                {{ passwordForm.confirmPassword(class_="input") }}
+                            </div>
+                        </div>
+                        <div class="field is-grouped is-justify-content-center">
+                            <div class="control">
+                                <button class="button is-secondary is-light" type="button"
+                                    onclick="handleChangePassword()">Cancel</button>
+                            </div>
+                            <div class="control">
+                                {{ passwordForm.submit(class_="button is-success") }}
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Open Up Modal for password -->
+    <script>
+        handleChangePassword = () => {
+            const launchPasswordModal = document.querySelector('#launchPasswordModal');
+            const passwordModal = document.querySelector('#passwordModal');
+
+            // Check if "is-active" class is present
+            if (launchPasswordModal.classList.contains('is-active')) {
+                launchPasswordModal.classList.remove('is-active');
+                // Close the modal
+                passwordModal.classList.remove('is-active');
+            } else {
+                launchPasswordModal.classList.add('is-active');
+                // Open the modal
+                passwordModal.classList.add('is-active');
+            }
+        }
+    </script>
+
+    <div>
+        <div class="is-size-4 mt-6 has-text-danger-dark">Delete account</div>
+        <hr class="mt-2">
+        <p class="mb-3 is-family-primary">Once you delete your account, there is no going back. Please be certain.</p>
+        <button class="button is-danger is-outlined is-family-monospace" id="launchDeleteModal"
+            onclick="handleDeleteModal()">Delete your account</button>
+    </div>
+
+    <!-- Delete modal -->
+    <div class="modal" id="deleteModal">
+        <div class="modal-background"></div>
+
+        <div class="modal-card">
+            <header class="modal-card-head">
+                <button class="delete" aria-label="close" onclick="handleDeleteModal()"></button>
+            </header>
+            <section class="modal-card-body">
+                <article class="message is-danger">
+                    <div class="message-body">
+                        Are you sure you want to delete this account? <strong>There is no going back</strong>
+                    </div>
+                </article>
+                <div class="is-flex is-justify-content-center">
+                    <form action="/deleteAccount" method="POST" class="w-75">
+                        {{ deleteForm.hidden_tag() }}
+
+                        <div class="field">
+                            <label class="label">{{ deleteForm.username.label }}</label>
+                            <div class="control">
+                                {{ deleteForm.username(class_="input") }}
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="label">{{ deleteForm.password.label }}</label>
+                            <div class="control">
+                                {{ deleteForm.password(class_="input") }}
+                            </div>
+                        </div>
+                        <div class="field is-grouped is-justify-content-center">
+                            <div class="control">
+                                <button class="button is-secondary is-light" type="button"
+                                    onclick="handleDeleteModal()">Cancel</button>
+                            </div>
+                            <div class="control">
+                                {{ deleteForm.delete(class_="button is-danger") }}
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Open Up Modal for delete -->
+    <script>
+        handleDeleteModal = () => {
+            const launchDeleteModal = document.querySelector('#launchDeleteModal');
+            const deleteModal = document.querySelector('#deleteModal');
+
+            // Check if "is-active" class is present
+            if (launchDeleteModal.classList.contains('is-active')) {
+                launchDeleteModal.classList.remove('is-active');
+                // Close the modal
+                deleteModal.classList.remove('is-active');
+            } else {
+                launchDeleteModal.classList.add('is-active');
+                // Open the modal
+                deleteModal.classList.add('is-active');
+            }
+        }
+    </script>
+</div>
+{% endblock %}

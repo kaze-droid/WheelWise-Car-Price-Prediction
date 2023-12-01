@@ -4,7 +4,7 @@
 {% block content %}
 <div class="h-full w-full">
     <div class="is-size-3 has-text-weight-bold my-6 has-text-black has-text-centered is-family-code">
-        {{title}}
+        {{contentTitle}}
     </div>
 
     <!-- Flash message -->
@@ -58,7 +58,12 @@
                     <td>
                         <form name="formRemove" action="/remove" method="POST">
                             <input type="hidden" name="id" value="{{ entry.id }}">
-                            <button class="button is-danger is-small" type="submit" value="Remove">Remove</button>
+                            <button class="button is-danger is-small" type="submit" value="Remove">
+                                <span>Remove</span>
+                                <span class="icon is-small">
+                                    <i class="fas fa-times"></i>
+                                </span>
+                            </button>
                         </form>
                 </tr>
                 {% endfor %}

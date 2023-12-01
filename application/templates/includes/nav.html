@@ -85,7 +85,7 @@
                         {% if current_user.is_authenticated %}
                         <div class="dropdown-menu" id="dropdown-menu" role="menu">
                             <div class="dropdown-content">
-                                <a href="/" class="dropdown-item is-size-5 has-text-black">
+                                <a href="/profile" class="dropdown-item is-size-5 has-text-black">
                                     View Profile
                                 </a>
                                 <form name="formSignout" action='/logout' method="post">
@@ -139,18 +139,9 @@
                 modal.classList.add('is-active');
             }
         }
-
-        // Add a keyboard event to close all modals
-        document.addEventListener('keydown', (event) => {
-            if (event.key === 'Escape') {
-                handleNavbarBurger();
-            }
-        });
     </script>
 
-
     <!-- Header for Mobile and Tablets -->
-    <!-- is-hidden-desktop -->
     <nav class="navbar is-transparent h-full is-hidden-desktop" role="navigation">
         <div class="navbar-brand is-align-items-center is-justify-content-space-between w-full h-full">
             <a role="button" class="navbar-item navbar-burger m-6 has-text-black" id="hamburgerMenu" aria-label="menu"
@@ -175,7 +166,7 @@
                     {% if loggedIn %}
                     <div class="dropdown-menu" id="dropdown-menu" role="menu">
                         <div class="dropdown-content">
-                            <a href="/" class="dropdown-item is-size-5 has-text-black">
+                            <a href="/profile" class="dropdown-item is-size-5 has-text-black">
                                 View Profile
                             </a>
                             <form name="formSignout" action='/logout' method="post">

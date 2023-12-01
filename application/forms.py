@@ -4,6 +4,7 @@ from wtforms import StringField, EmailField, PasswordField
 from wtforms.validators import Length, InputRequired, ValidationError, NumberRange, EqualTo
 from application.models import User
 
+# Prediction Form
 class PredictionForm(FlaskForm):
     brands = [('audi','Audi'),('bmw','BMW'),('merc','Mercedes'), ('ford', 'Ford'), ('hyundi', 'Hyundi'), ('skoda', 'Skoda'), ('toyota', 'Toyota'), ('vauxhall', 'Vauxhall'), ('vw', 'VolksWagen')]
 
@@ -31,6 +32,7 @@ class PredictionForm(FlaskForm):
 
     submit = SubmitField('Predict Price')
 
+# User Registration form
 class UserRegisterForm(FlaskForm):
     username = StringField('Username', validators=[InputRequired(), Length(min=2, max=20)], render_kw={'placeholder': 'JohnDoe'})
     email = EmailField('Email', validators=[InputRequired()], render_kw={'placeholder': 'johndoe@gmail.com'})
@@ -38,22 +40,49 @@ class UserRegisterForm(FlaskForm):
     confirmPassword = PasswordField('Confirm Password', validators=[InputRequired(), EqualTo('password', message='Passwords must match')], render_kw={'placeholder': '********'})
     submit = SubmitField('Sign Up')
 
+    def validate_username(self, username):
+        # Make sure username does not contain spaces
+        if ' ' in username.data:
+            raise ValidationError('Username cannot contain spaces!')
+        # Make sure no special characters in username
+        elif not username.data.isalnum():
+            raise ValidationError('Username can only contain letters and numbers!')
+
     def validate_email(self, email):
         # Check if email already exists
         existing_email = User.query.filter_by(email=email.data).first()
 
         if existing_email:
             raise ValidationError('Email already exists!')
-        
+    
+# User Login form
 class UserLoginForm(FlaskForm):
-    email = EmailField('Email', validators=[InputRequired()])
+    email = EmailField('Email', validators=[InputRequired()], render_kw={'placeholder': 'JohnDoe@gmail.com'})
     password = PasswordField('Password', validators=[InputRequired()])
     submit = SubmitField('Login')
 
-    def validate_email(self, email):
-        # Check if email does not exist
-        existing_email = User.query.filter_by(email=email.data).first()
+# User Change username
+class UserChangeUsernameForm(FlaskForm):
+    username = StringField('New Username', validators=[InputRequired(), Length(min=2, max=20)], render_kw={'placeholder': 'JohnDoe'})
+    submit = SubmitField('Change Username')
 
-        if not existing_email:
-            raise ValidationError('Email does not exist!')
+    def validate_username(self, username):
+        # Make sure username does not contain spaces
+        if ' ' in username.data:
+            raise ValidationError('Username cannot contain spaces!')
+        # Make sure no special characters in username
+        elif not username.data.isalnum():
+            raise ValidationError('Username can only contain letters and numbers!')
+        
+# User Change password
+class UserChangePasswordForm(FlaskForm):
+    password = PasswordField('Password', validators=[InputRequired(), EqualTo('confirmPassword', message='Passwords must match'), Length(min=12, max=80)], render_kw={'placeholder': '********'})
+    confirmPassword = PasswordField('Confirm Password', validators=[InputRequired(), EqualTo('password', message='Passwords must match')], render_kw={'placeholder': '********'})
+    submit = SubmitField('Change Password')
 
+# User Delete account
+class UserDeleteForm(FlaskForm):
+    username = StringField('Username', validators=[InputRequired(), Length(min=2, max=20)], render_kw={'placeholder': 'JohnDoe'})
+    password = PasswordField('Password', validators=[InputRequired(), Length(min=12, max=80)], render_kw={'placeholder': '********'})
+    delete = SubmitField('Delete Account')
+    

@@ -8,6 +8,18 @@ html, body {
     overflow-x: hidden;
 }
 
+::selection {
+    /* Change highlight background color to orange */
+    background: #eea734;
+    /* Change highlight text color to red */
+    color: #ffffff;
+}
+
+hr {
+    background-color: #a9a9a9;  
+    height: 1px;
+}
+
 .outerContainer {
     height: 100vh;
 }
