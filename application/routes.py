@@ -243,11 +243,6 @@ def profile():
     )
 
 
-@app.route('/profile')
-@login_required
-def profile():
-    return render_template("profile.html", title="Profile", contentTitle="Profile Page")
-
 # Used for removing entries
 @app.route("/remove", methods=["POST"])
 def remove():
@@ -327,8 +322,8 @@ def deleteAccount():
     else:
         flash("Error deleting account!", "error")
     
-    # Redirect to profile page
-    return redirect("/profile")
+    # Redirect to 
+    return redirect("/login")
 
 
 @app.errorhandler(404)
@@ -406,6 +401,7 @@ def get_user(email):
     except Exception as e:
         flash(e, "error")
         return 0
+
 
 def update_user(user, username=None, password=None):
     try:
