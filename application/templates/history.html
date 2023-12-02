@@ -69,7 +69,20 @@
                 {% endfor %}
             </tbody>
         </table>
+
+        <!-- Export as csv button -->
+        <div class="is-flex">
+            <form name="formExport" action="/export" method="POST">
+                <button class="button is-primary" type="submit" value="Export">
+                    <span class="icon is-small">
+                        <i class="fas fa-file-csv"></i>
+                    </span>
+                    <span>Export as CSV</span>
+                </button>
+            </form>
+        </div>
     </div>
+    
     {% else %}
     <div class="is-size-4 my-6 has-text-black has-text-centered is-family-code">
         <div class="mt-6">{% include "svgs/waiting.html" %}</div>

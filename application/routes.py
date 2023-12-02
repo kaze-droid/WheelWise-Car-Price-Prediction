@@ -1,7 +1,7 @@
 from application import app, ai_model, db, bcrypt, login_manager
 from application.models import PredEntry, User
 from datetime import datetime, timezone, timedelta
-from flask import render_template, request, flash, redirect
+from flask import render_template, request, flash, redirect, send_file
 from application.forms import (
     PredictionForm,
     UserRegisterForm,
@@ -13,6 +13,7 @@ from application.forms import (
 from flask_login import login_user, current_user, logout_user, login_required
 import pandas as pd
 import json
+import os
 
 login_manager.init_app(app)
 # Redirect to login page if user is not logged in
@@ -199,12 +200,14 @@ def login():
             email = form.email.data
             password = form.password.data
 
+            remember = form.remember.data
+
             # Get the user
             user = get_user(email)
 
             # Check if user exists and password is correct (hash from db matches form password)
             if user and bcrypt.check_password_hash(user.password, password):
-                login_user(user)
+                login_user(user, remember=remember)
                 current_user.last_login = datetime.now(timezone(timedelta(hours=8)))
                 return redirect("/")
             else:
@@ -254,6 +257,65 @@ def remove():
     # Redirect to history page
     return redirect("/history")
 
+
+# Used for exporting history
+@app.route("/export", methods=["POST"])
+def export():
+    dir_name = os.path.join(os.getcwd(), "outputs")
+
+    # Create the outputs folder if it does not exist
+    if not os.path.exists(dir_name):
+        os.makedirs(dir_name)
+
+    # Clear the outputs folder
+    for file in os.listdir(dir_name):
+        os.remove(os.path.join(dir_name, file))
+
+    # Get all the entries for the user
+    user_id = current_user.id
+    entries = get_entries(PredEntry, whereClause=PredEntry.user_id == user_id)
+
+    # Create the dataframe
+    df = pd.DataFrame(
+        data=[
+            [
+                entry.brand,
+                entry.model,
+                entry.year,
+                entry.transmission,
+                entry.engineSize,
+                entry.fuelType,
+                entry.mileage,
+                entry.tax,
+                entry.mpg,
+                entry.prediction,
+                entry.prediction_date.strftime("%d %b %Y %H:%M"),
+            ]
+            for entry in entries
+        ],
+        columns=[
+            "Brand",
+            "Model",
+            "Year",
+            "Transmission",
+            "Engine Size",
+            "Fuel Type",
+            "Mileage",
+            "Road Tax",
+            "Miles Per Gallon",
+            "Prediction",
+            "Prediction Date",
+        ],
+    )
+
+    file_name = os.path.join(dir_name, f"history{user_id}.csv")
+
+
+    # Export to csv
+    df.to_csv(file_name, index=False)
+
+    # Return the csv file
+    return send_file(file_name, mimetype="text/csv", as_attachment=True)
 
 # Used for changing username
 @app.route("/changeUsername", methods=["POST"])

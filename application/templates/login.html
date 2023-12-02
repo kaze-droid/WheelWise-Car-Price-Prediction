@@ -30,9 +30,9 @@
                         <i class="fas fa-envelope"></i>
                     </span>
                     {% if form.email.errors|length > 0 %}
-                        {{ form.email(class_="input is-danger") }}
+                    {{ form.email(class_="input is-danger") }}
                     {% else %}
-                        {{ form.email(class_="input") }}
+                    {{ form.email(class_="input") }}
                     {% endif %}
                 </div>
                 {% for error in form.email.errors %}
@@ -42,6 +42,7 @@
                 {% endfor %}
             </div>
 
+
             <div class="field">
                 <label class="label">{{ form.password.label }}</label>
                 <div class="control has-icons-left">
@@ -49,9 +50,9 @@
                         <i class="fas fa-lock"></i>
                     </span>
                     {% if form.password.errors|length > 0 %}
-                        {{ form.password(class_="input is-danger") }}
+                    {{ form.password(class_="input is-danger") }}
                     {% else %}
-                        {{ form.password(class_="input") }}
+                    {{ form.password(class_="input") }}
                     {% endif %}
                 </div>
                 {% for error in form.password.errors %}
@@ -63,6 +64,15 @@
         </div>
 
         <div class="mt-4">
+            <!-- Remember Me -->
+            <div class="field">
+                <div class="control">
+                    <label class="checkbox">
+                        {{ form.remember() }}
+                        {{ form.remember.label }}
+                    </label>
+                </div>
+            </div>
             <p class="is-size-6 has-text-weight-light has-text-link">
                 <a href="/register" class="has-text-link is-underlined mr-4">Don't have an account yet?</a>
                 <a href="/register" class="has-text-link is-underlined">Forget Password</a>
