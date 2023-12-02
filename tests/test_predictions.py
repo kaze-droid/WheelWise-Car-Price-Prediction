@@ -20,9 +20,6 @@ import os.path
         ["vw", "Golf", 2017, "Manual", 1.4, 12500, "Petrol", 150, 55.4, 12000.00, 3]
     ])
 
-
-
-
 def test_add_prediction(client, entrylist, capsys):
     url = '/api/predEntry/add'
     with capsys.disabled():
@@ -125,6 +122,52 @@ def test_export_prediction(client, entrylist, capsys):
         
         # Check if output folder has a file called history{entrylist[0]}.csv
         assert os.path.isfile(file_path) == True
+
+# Consistency Test for Predictions
+@pytest.mark.parametrize("predConsistencyList",
+    [
+        [["audi", "A1", 2017, "Manual", 1.4, 12500, "Petrol", 150, 55.4],
+         ["audi", "A1", 2017, "Manual", 1.4, 12500, "Petrol", 150, 55.4],
+         ["audi", "A1", 2017, "Manual", 1.4, 12500, "Petrol", 150, 55.4], ],
+        [["bmw", "1 Series", 2014, "Manual", 2.0, 45000, "Diesel", 20, 60.1],
+         ["bmw", "1 Series", 2014, "Manual", 2.0, 45000, "Diesel", 20, 60.1],
+         ["bmw", "1 Series", 2014, "Manual", 2.0, 45000, "Diesel", 20, 60.1], ],
+        [["merc", "A Class", 2019, "Automatic", 1.5, 10000, "Petrol", 150, 55.4],
+         ["merc", "A Class", 2019, "Automatic", 1.5, 10000, "Petrol", 150, 55.4],
+         ["merc", "A Class", 2019, "Automatic", 1.5, 10000, "Petrol", 150, 55.4], ],
+        [["ford", "Focus", 2018, "Manual", 1.0, 20000, "Petrol", 150, 55.4],
+         ["ford", "Focus", 2018, "Manual", 1.0, 20000, "Petrol", 150, 55.4],
+         ["ford", "Focus", 2018, "Manual", 1.0, 20000, "Petrol", 150, 55.4], ],       
+    ]
+)
+
+def test_predictAPI(client, predConsistencyList, capsys):
+    with capsys.disabled():
+        predictedOutput = []
+        for predictions in predConsistencyList:
+            data = {
+                'brand': predictions[0],
+                'model': predictions[1],
+                'year': predictions[2],
+                'transmission': predictions[3],
+                'engineSize': predictions[4],
+                'mileage': predictions[5],
+                'fuelType': predictions[6],
+                'tax': predictions[7],
+                'mpg': predictions[8]
+            }
+            response = client.get('/api/predict', data=json.dumps(data), content_type='application/json')
+            response_body = response.json
+            assert response.status_code == 200
+            assert response_body['prediction']
+            predictedOutput.append(response_body['prediction'])
+            # Check if the prediction is consistent
+            assert len(set(predictedOutput)) == 1
+            # Make sure all the predictions are the same
+            assert all(x == predictedOutput[0] for x in predictedOutput) == True
+
+
+
         
        
 

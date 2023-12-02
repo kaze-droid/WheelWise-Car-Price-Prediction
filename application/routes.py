@@ -88,6 +88,10 @@ def predict():
             response = predictAPI(data)
             prediction = response.json["prediction"]
 
+            if response.status_code != 200:
+                flash("Error cannot proceed", "error")
+                return redirect("/predict")
+
 
             # Post the prediction to the database using internal API
             data = {
@@ -104,10 +108,14 @@ def predict():
                 "user_id": current_user.id,
             }
 
-            predictAdd(data)
+            response2 = predictAdd(data)
+            if response2.status_code == 200:
+                # Show the prediction result
+                flash(f"Your car is worth £{prediction:,.2f}.", "success")
 
-            # Show the prediction result
-            flash(f"Your car is worth £{prediction:,.2f}.", "success")
+            else:
+                flash("Error cannot proceed", "error")
+                return redirect("/predict")
 
         else:
             flash("Error cannot proceed", "error")
@@ -167,19 +175,22 @@ def register():
             username = form.username.data
             email = form.email.data
             password = form.password.data
-            # Hash the password
-            hashed_password = bcrypt.generate_password_hash(password)
+            
+            # Add user using internal API
+            data = {
+                "username": username,
+                "email": email,
+                "password": password,
+            }
 
-            # Create the new user
-            new_user = User(
-                username=username,
-                email=email,
-                password=hashed_password,
-                creation_date=datetime.now(SGT),
-            )
-            add_entry(new_user)
-            flash("Account created successfully!", "success")
-            return redirect("/login")
+            result = userAdd(data)
+
+            if result.status_code == 200:
+                flash("Account created successfully!", "success")
+                return redirect("/login")
+            else:
+                flash(f"Error creating new user!", "error")
+
         else:
             flash(f"Error creating new user!", "error")
     return render_template(
@@ -200,19 +211,24 @@ def login():
             # Get the form data
             email = form.email.data
             password = form.password.data
-
             remember = form.remember.data
 
-            # Get the user
-            user = get_user(email)
+            # Get the user using internal API
+            data = {
+                "email": email,
+                "password": password,
+                "remember": remember,
+            }
 
-            # Check if user exists and password is correct (hash from db matches form password)
-            if user and bcrypt.check_password_hash(user.password, password):
-                login_user(user, remember=remember)
-                current_user.last_login = datetime.now(timezone(timedelta(hours=8)))
+            response, err_code = getUser(data)
+
+            if err_code == 200:
+                # Redirect to home page
                 return redirect("/profile")
             else:
-                flash("Login unsuccessful!", "error")
+                flash(response.json["error"], "error")
+                redirect("/login")
+                
         else:
             flash("Error logging in!", "error")
     return render_template(
@@ -254,13 +270,14 @@ def changeUsername():
         # Get the form data
         new_username = form.username.data
 
-        # Get the user
-        user = get_user(current_user.email)
-
-        # Update the username
-        user = update_user(user, username=new_username)
-
-        flash("Username changed successfully!", "success")
+        data = {
+            "username": new_username,
+        }
+        response = changeUsernameAPI(data)
+        if response.status_code == 200:
+            flash("Username changed successfully!", "success")
+        else:
+            flash("Error changing username!", "error")
     else:
         flash("Error changing username!", "error")
     
@@ -275,16 +292,15 @@ def changePassword():
         # Get the form data
         new_password = form.password.data
 
-        # Get the user
-        user = get_user(current_user.email)
+        data = {
+            "password": new_password,
+        }
 
-        # Hash the password
-        hashed_password = bcrypt.generate_password_hash(new_password)
-
-        # Update the password
-        user = update_user(user, password=hashed_password)
-
-        flash("Password changed successfully!", "success")
+        response = changePasswordAPI(data)
+        if response.status_code == 200:
+            flash("Password changed successfully!", "success")
+        else:
+            flash("Error changing password!", "error")
     else:
         flash("Error changing password!", "error")
     
@@ -300,13 +316,13 @@ def deleteAccount():
         username = form.username.data
         password = form.password.data
 
-        # Get the user
-        user = get_user(current_user.email)
+        data = {
+            "username": username,
+            "password": password,
+        }
 
-        # Check if username and password matches
-        if user.username == username and bcrypt.check_password_hash(user.password, password):
-            # Delete the user
-            delete_entry(User, user.id)
+        response = deleteAccountAPI(data)
+        if response.status_code == 200:
             flash("Account deleted successfully!", "success")
         else:
             flash("Error deleting account!", "error")
@@ -342,7 +358,7 @@ def getModels(brand):
     return df["model"].to_json(orient="index"), 200
 
 # Used for predicting the price of a car
-@app.route("/api/predict/", methods=["GET"])
+@app.route("/api/predict", methods=["GET"])
 def predictAPI(data=None):
     if data is None:
         # Read the json data
@@ -508,6 +524,103 @@ def exportPredEntries(user_id):
 
     return file_name
 
+@app.route("/api/user/add", methods=["POST"])
+def userAdd(data=None):
+    if data is None:
+        # Read the json data
+        data = request.get_json()
+
+    # Hash the password
+    hashed_password = bcrypt.generate_password_hash(data["password"])
+
+    # Create the new user
+    new_user = User(
+        username=data["username"],
+        email=data["email"],
+        password=hashed_password,
+        creation_date=datetime.now(SGT),
+    )
+
+    # Add the user
+    result = add_entry(new_user)
+
+    # Return the result of the db action
+    return jsonify({'id': result})
+
+@app.route("/api/user", methods=["GET"])
+def getUser(data=None):
+    if data is None:
+        # Read the json data
+        data = request.get_json()
+
+    # Get the user
+    user = get_user(data["email"])
+
+    # Check if user exists and password is correct (hash from db matches form password)
+    if user and bcrypt.check_password_hash(user.password, data["password"]):
+        login_user(user, remember=data["remember"])
+        # Return the json
+        return jsonify({"id": user.id}), 200
+
+    else:
+        # Return an error
+        return jsonify({'error': 'Invalid Credentials'}),  401
+    
+# Used for changing username
+@app.route("/api/user/changeUsername", methods=["POST"])
+def changeUsernameAPI(data=None):
+    if data is None:
+        # Read the json data
+        data = request.get_json()
+
+    # Get the user
+    user = get_user(current_user.email)
+
+    # Update the username
+    user = update_user(user, username=data["username"])
+
+    # Return the result of the db action
+    return jsonify({'id': user.id})
+
+# Used for changing password
+@app.route("/api/user/changePassword", methods=["POST"])
+def changePasswordAPI(data=None):
+    if data is None:
+        # Read the json data
+        data = request.get_json()
+
+    # Get the user
+    user = get_user(current_user.email)
+
+    # Hash the password
+    hashed_password = bcrypt.generate_password_hash(data["password"])
+
+    # Update the password
+    user = update_user(user, password=hashed_password)
+
+    # Return the result of the db action
+    return jsonify({'id': user.id})
+
+# Used for deleting account
+@app.route("/api/user/deleteAccount", methods=["POST"])
+def deleteAccountAPI(data=None):
+    if data is None:
+        # Read the json data
+        data = request.get_json()
+
+    # Get the user
+    user = get_user(current_user.email)
+
+    if user.username == data["username"] and bcrypt.check_password_hash(user.password, data["password"]):
+        # Delete the user
+        delete_entry(User, user.id)
+
+        # Return the result of the db action
+        return jsonify({'id': user.id})
+    else:
+        # Return an error
+        return jsonify({'error': 'Invalid Credentials'}),  401
+
 # Utility Functions
 def featureEngineering(X):
     df = pd.DataFrame(X.reset_index(drop=True))
@@ -552,7 +665,7 @@ def delete_entry(model, id):
 
 def get_user(email):
     try:
-        user = User.query.filter_by(email=email).first_or_404()
+        user = User.query.filter_by(email=email).first()
         return user
     except Exception as e:
         flash(e, "error")
