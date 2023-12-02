@@ -54,7 +54,7 @@
                     <td>{{ entry.tax }}</td>
                     <td>{{ entry.mpg }}</td>
                     <td>£{{ "{:,.2f}".format(entry.prediction) }}</td>
-                    <td>{{ entry.prediction_date.strftime("%d %b %y %H:%M") }}</td>
+                    <td>{{ entry.prediction_date }}</td>
                     <td>
                         <form name="formRemove" action="/remove" method="POST">
                             <input type="hidden" name="id" value="{{ entry.id }}">

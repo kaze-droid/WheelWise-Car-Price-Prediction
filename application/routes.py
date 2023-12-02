@@ -1,7 +1,7 @@
 from application import app, ai_model, db, bcrypt, login_manager
 from application.models import PredEntry, User
 from datetime import datetime, timezone, timedelta
-from flask import render_template, request, flash, redirect, send_file
+from flask import render_template, request, flash, redirect, send_file, json, jsonify
 from application.forms import (
     PredictionForm,
     UserRegisterForm,
@@ -14,6 +14,10 @@ from flask_login import login_user, current_user, logout_user, login_required
 import pandas as pd
 import json
 import os
+
+
+# Since SGT is 8 hours ahead compared to UTC
+SGT = timezone(timedelta(hours=8))
 
 login_manager.init_app(app)
 # Redirect to login page if user is not logged in
@@ -33,7 +37,7 @@ def home():
 
 @app.route("/about")
 def about():
-    return render_template("about.html", about=True)
+    return render_template("about.html", about=True, title="About")
 
 
 @app.route("/predict", methods=["GET", "POST"])
@@ -68,62 +72,39 @@ def predict():
             mpg = form.milesPerGallon.data
             engineSize = form.engineSize.data
 
-            # Create the input dataframe
-            input_df = pd.DataFrame(
-                data=[
-                    [
-                        brand,
-                        model,
-                        year,
-                        gearbox,
-                        mileage,
-                        fuelType,
-                        tax,
-                        mpg,
-                        engineSize,
-                    ]
-                ],
-                columns=[
-                    "brand",
-                    "model",
-                    "year",
-                    "transmission",
-                    "mileage",
-                    "fuelType",
-                    "tax",
-                    "mpg",
-                    "engineSize",
-                ],
-            )
+            # Get prediction using internal API
+            data = {
+                "brand": brand,
+                "model": model,
+                "year": year,
+                "transmission": gearbox,
+                "mileage": mileage,
+                "fuelType": fuelType,
+                "tax": tax,
+                "mpg": mpg,
+                "engineSize": engineSize,
+            }
 
-            # Feature Engineering
-            input_df = featureEngineering(input_df)
+            response = predictAPI(data)
+            prediction = response.json["prediction"]
 
-            # Get the prediction
-            prediction = ai_model.predict(input_df)[0]
 
-            # Since SGT is 8 hours ahead compared to UTC
-            SGT = timezone(timedelta(hours=8))
+            # Post the prediction to the database using internal API
+            data = {
+                "brand": brand,
+                "model": model,
+                "year": year,
+                "transmission": gearbox,
+                "mileage": mileage,
+                "fuelType": fuelType,
+                "tax": tax,
+                "mpg": mpg,
+                "engineSize": engineSize,
+                "prediction": prediction,
+                "user_id": current_user.id,
+            }
 
-            # Get the user id
-            user_id = current_user.id
-
-            # Create the new entry
-            new_entry = PredEntry(
-                brand=brand,
-                model=model,
-                year=year,
-                transmission=gearbox,
-                mileage=mileage,
-                fuelType=fuelType,
-                tax=tax,
-                mpg=mpg,
-                engineSize=engineSize,
-                prediction=round(prediction, 2),
-                prediction_date=datetime.now(SGT),
-                user_id=user_id,
-            )
-            add_entry(new_entry)
+            predictAdd(data)
 
             # Show the prediction result
             flash(f"Your car is worth £{prediction:,.2f}.", "success")
@@ -143,15 +124,38 @@ def predict():
 @app.route("/history")
 @login_required
 def history():
-    user_id = current_user.id
+    # Get all the entries for the user using internal API
+    response = getPredEntries(current_user.id)
+    entries = response.json
+
     return render_template(
         "history.html",
         history=True,
         title="History",
         contentTitle="WheelWise Prediction History",
-        entries=get_entries(PredEntry, whereClause=PredEntry.user_id == user_id),
+        entries=entries,
     )
 
+# Used for removing entries
+@app.route("/remove", methods=["POST"])
+def remove():
+    # Get the id from the form
+    req = request.form
+    id = req.get("id")
+    # Delete the entry
+    removePredEntry(id)
+    # Redirect to history page
+    return redirect("/history")
+
+
+# Used for exporting history
+@app.route("/export", methods=["POST"])
+def export():
+    # Get the file name
+    file_name = exportPredEntries(current_user.id)
+
+    # Return the csv file
+    return send_file(file_name, mimetype="text/csv", as_attachment=True)
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -166,9 +170,6 @@ def register():
             # Hash the password
             hashed_password = bcrypt.generate_password_hash(password)
 
-            # Since SGT is 8 hours ahead compared to UTC
-            SGT = timezone(timedelta(hours=8))
-
             # Create the new user
             new_user = User(
                 username=username,
@@ -177,8 +178,8 @@ def register():
                 creation_date=datetime.now(SGT),
             )
             add_entry(new_user)
-
             flash("Account created successfully!", "success")
+            return redirect("/login")
         else:
             flash(f"Error creating new user!", "error")
     return render_template(
@@ -209,7 +210,7 @@ def login():
             if user and bcrypt.check_password_hash(user.password, password):
                 login_user(user, remember=remember)
                 current_user.last_login = datetime.now(timezone(timedelta(hours=8)))
-                return redirect("/")
+                return redirect("/profile")
             else:
                 flash("Login unsuccessful!", "error")
         else:
@@ -244,78 +245,6 @@ def profile():
         passwordForm=passwordForm,
         deleteForm=deleteForm,
     )
-
-
-# Used for removing entries
-@app.route("/remove", methods=["POST"])
-def remove():
-    # Get the id from the form
-    req = request.form
-    id = req.get("id")
-    # Delete the entry
-    delete_entry(PredEntry, id)
-    # Redirect to history page
-    return redirect("/history")
-
-
-# Used for exporting history
-@app.route("/export", methods=["POST"])
-def export():
-    dir_name = os.path.join(os.getcwd(), "outputs")
-
-    # Create the outputs folder if it does not exist
-    if not os.path.exists(dir_name):
-        os.makedirs(dir_name)
-
-    # Clear the outputs folder
-    for file in os.listdir(dir_name):
-        os.remove(os.path.join(dir_name, file))
-
-    # Get all the entries for the user
-    user_id = current_user.id
-    entries = get_entries(PredEntry, whereClause=PredEntry.user_id == user_id)
-
-    # Create the dataframe
-    df = pd.DataFrame(
-        data=[
-            [
-                entry.brand,
-                entry.model,
-                entry.year,
-                entry.transmission,
-                entry.engineSize,
-                entry.fuelType,
-                entry.mileage,
-                entry.tax,
-                entry.mpg,
-                entry.prediction,
-                entry.prediction_date.strftime("%d %b %Y %H:%M"),
-            ]
-            for entry in entries
-        ],
-        columns=[
-            "Brand",
-            "Model",
-            "Year",
-            "Transmission",
-            "Engine Size",
-            "Fuel Type",
-            "Mileage",
-            "Road Tax",
-            "Miles Per Gallon",
-            "Prediction",
-            "Prediction Date",
-        ],
-    )
-
-    file_name = os.path.join(dir_name, f"history{user_id}.csv")
-
-
-    # Export to csv
-    df.to_csv(file_name, index=False)
-
-    # Return the csv file
-    return send_file(file_name, mimetype="text/csv", as_attachment=True)
 
 # Used for changing username
 @app.route("/changeUsername", methods=["POST"])
@@ -398,8 +327,8 @@ def page_not_found(e):
         404,
     )
 
-
 # API Routes
+# Used for getting the models for a brand
 @app.route("/api/models/<brand>", methods=["GET"])
 def getModels(brand):
     df = pd.read_csv("application/static/car_models.csv")
@@ -412,6 +341,172 @@ def getModels(brand):
     # Convert to list json
     return df["model"].to_json(orient="index"), 200
 
+# Used for predicting the price of a car
+@app.route("/api/predict/", methods=["GET"])
+def predictAPI(data=None):
+    if data is None:
+        # Read the json data
+        data = request.get_json()
+
+    # Create the input dataframe
+    input_df = pd.DataFrame(
+        data=[
+            [
+                data["brand"],
+                data["model"],
+                data["year"],
+                data["transmission"],
+                data["mileage"],
+                data["fuelType"],
+                data["tax"],
+                data["mpg"],
+                data["engineSize"],
+            ]
+        ],
+        columns=[
+            "brand",
+            "model",
+            "year",
+            "transmission",
+            "mileage",
+            "fuelType",
+            "tax",
+            "mpg",
+            "engineSize",
+        ],
+    )
+
+    # Feature Engineering
+    input_df = featureEngineering(input_df)
+
+    # Get the prediction
+    prediction = ai_model.predict(input_df)[0]
+
+    # Return the prediction
+    return jsonify({"prediction": prediction})
+
+# Used for adding a prediction to the database
+@app.route("/api/predEntry/add", methods=["POST"])
+def predictAdd(data=None):
+    if data is None:
+        # Read the json data
+        data = request.get_json()
+
+    # Create the new entry
+    new_entry = PredEntry(
+        brand=data["brand"],
+        model=data["model"],
+        year=data["year"],
+        transmission=data["transmission"],
+        mileage=data["mileage"],
+        fuelType=data["fuelType"],
+        tax=data["tax"],
+        mpg=data["mpg"],
+        engineSize=data["engineSize"],
+        prediction=data["prediction"],
+        prediction_date= datetime.now(SGT),
+        user_id=data["user_id"],
+    )
+
+    # Add the entry
+    result =  add_entry(new_entry)
+
+    # return the result of the db action
+    return jsonify({'id': result})
+
+# Used for getting all the predictions for a user
+@app.route("/api/predEntry/<user_id>", methods=["GET"])
+def getPredEntries(user_id):
+    # Get all the entries for the user
+    entries = get_entries(PredEntry, whereClause=PredEntry.user_id == user_id)
+
+    # Convert result to json
+    entries = [
+        {
+            "id": entry.id,
+            "brand": entry.brand,
+            "model": entry.model,
+            "year": entry.year,
+            "transmission": entry.transmission,
+            "engineSize": entry.engineSize,
+            "fuelType": entry.fuelType,
+            "mileage": entry.mileage,
+            "tax": entry.tax,
+            "mpg": entry.mpg,
+            "prediction": entry.prediction,
+            "prediction_date": entry.prediction_date.strftime("%d %b %Y %H:%M"),
+        }
+        for entry in entries
+    ]
+
+    # Return the json
+    return jsonify(entries)
+
+# Used for removing entries
+@app.route("/api/predEntry/remove/<id>", methods=["GET"])
+def removePredEntry(id=None):
+    # Delete the entry
+    entry = delete_entry(PredEntry, id)
+
+    # Redirect to history page
+    return jsonify({'result': 'ok'})
+
+# Used for exporting history
+@app.route("/api/predEntry/export/<user_id>", methods=["GET"])
+def exportPredEntries(user_id):
+    dir_name = os.path.join(os.getcwd(), "outputs")
+
+    # Create the outputs folder if it does not exist
+    if not os.path.exists(dir_name):
+        os.makedirs(dir_name)
+
+    # Clear the outputs folder
+    for file in os.listdir(dir_name):
+        os.remove(os.path.join(dir_name, file))
+
+    # Get all the entries for the user
+    response = getPredEntries(user_id)
+    entries = response.json
+
+    # Create the dataframe
+    df = pd.DataFrame(
+        data=[
+            [
+                entry['brand'],
+                entry['model'],
+                entry['year'],
+                entry['transmission'],
+                entry['engineSize'],
+                entry['fuelType'],
+                entry['mileage'],
+                entry['tax'],
+                entry['mpg'],
+                entry['prediction'],
+                entry['prediction_date'],
+            ]
+            for entry in entries
+        ],
+        columns=[
+            "Brand",
+            "Model",
+            "Year",
+            "Transmission",
+            "Engine Size",
+            "Fuel Type",
+            "Mileage",
+            "Road Tax",
+            "Miles Per Gallon",
+            "Prediction",
+            "Prediction Date",
+        ],
+    )
+
+    file_name = os.path.join(dir_name, f"history{user_id}.csv")
+
+    # Export to csv
+    df.to_csv(file_name, index=False)
+
+    return file_name
 
 # Utility Functions
 def featureEngineering(X):
@@ -419,8 +514,6 @@ def featureEngineering(X):
     df["mileagePerYear"] = df["mileage"] / (2021 - df["year"])
     return df
 
-
-# Model Functions
 def add_entry(new_entry):
     try:
         db.session.add(new_entry)
@@ -450,6 +543,7 @@ def delete_entry(model, id):
         entry = db.get_or_404(model, id)
         db.session.delete(entry)
         db.session.commit()
+        return entry.id
     except Exception as e:
         db.session.rollback()
         flash(e, "error")
