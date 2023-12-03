@@ -1,0 +1,4 @@
+# Files in .dockerignore are excluded when building an image
+.git/
+__pycache__/
+notebooks/
