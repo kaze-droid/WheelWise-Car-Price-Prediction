@@ -185,9 +185,9 @@ def register():
                 "password": password,
             }
 
-            result = userAdd(data)
+            result, err_code = userAdd(data)
 
-            if result.status_code == 200:
+            if err_code == 200:
                 flash("Account created successfully!", "success")
                 return redirect("/login")
             else:
