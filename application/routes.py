@@ -323,8 +323,8 @@ def deleteAccount():
             "password": password,
         }
 
-        response = deleteAccountAPI(data)
-        if response.status_code == 200:
+        response, status_code = deleteAccountAPI(data)
+        if status_code == 200:
             flash("Account deleted successfully!", "success")
         else:
             flash("Error deleting account!", "error")
