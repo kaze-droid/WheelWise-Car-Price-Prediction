@@ -92,16 +92,15 @@ def test_remove_prediction(client, entrylist, capsys):
         }
         # Add prediction entry
         response = client.post('/api/predEntry/add', data=json.dumps(data), content_type='application/json')
-        response_body = response.json
+        id = response.json['id']
         assert response.status_code == 200
-        id =  response_body['id']
-        assert id
+        assert response.json['id'] > 0
         
         # Remove prediction entry
         response2 = client.get(f'/api/predEntry/remove/{id}')
         assert response2.status_code == 200
         assert response2.headers['Content-Type'] == 'application/json'
-        assert response2.json['result'] == 'ok'
+        assert int(response2.json['id']) == int(response.json['id'])
 
 # Test export prediction entries
 @pytest.mark.parametrize("entrylist",
