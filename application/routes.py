@@ -26,7 +26,8 @@ login_manager.login_view = "login"
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    return db.session.get(User, int(user_id))
+
 
 
 @app.route("/")
@@ -85,12 +86,13 @@ def predict():
                 "engineSize": engineSize,
             }
 
-            response = predictAPI(data)
-            prediction = response.json["prediction"]
+            response, status_code = predictAPI(data)
 
-            if response.status_code != 200:
+            if status_code != 200:
                 flash("Error cannot proceed", "error")
                 return redirect("/predict")
+            
+            prediction = response.json["prediction"]
 
 
             # Post the prediction to the database using internal API
@@ -108,8 +110,8 @@ def predict():
                 "user_id": current_user.id,
             }
 
-            response2 = predictAdd(data)
-            if response2.status_code == 200:
+            response2, status_code2 = predictAdd(data)
+            if status_code == 200:
                 # Show the prediction result
                 flash(f"Your car is worth £{prediction:,.2f}.", "success")
 
@@ -133,7 +135,7 @@ def predict():
 @login_required
 def history():
     # Get all the entries for the user using internal API
-    response = getPredEntries(current_user.id)
+    response, status_code = getPredEntries(current_user.id)
     entries = response.json
 
     return render_template(
@@ -243,7 +245,7 @@ def login():
 @app.route("/logout", methods=["POST"])
 @login_required
 def logout():
-    logout_user()
+    logoutUser()
     return redirect("/")
 
 
@@ -273,13 +275,13 @@ def changeUsername():
         data = {
             "username": new_username,
         }
-        response = changeUsernameAPI(data)
-        if response.status_code == 200:
+        response, status_code = changeUsernameAPI(data)
+        if status_code == 200:
             flash("Username changed successfully!", "success")
         else:
             flash("Error changing username!", "error")
     else:
-        flash("Error changing username!", "error")
+        flash("Username must not contain special characters!", "error")
     
     # Redirect to profile page
     return redirect("/profile")
@@ -296,13 +298,13 @@ def changePassword():
             "password": new_password,
         }
 
-        response = changePasswordAPI(data)
-        if response.status_code == 200:
+        response, status_code = changePasswordAPI(data)
+        if status_code == 200:
             flash("Password changed successfully!", "success")
         else:
             flash("Error changing password!", "error")
     else:
-        flash("Error changing password!", "error")
+        flash("Passwords do not match!", "error")
     
     # Redirect to profile page
     return redirect("/profile")
@@ -399,7 +401,7 @@ def predictAPI(data=None):
     prediction = ai_model.predict(input_df)[0]
 
     # Return the prediction
-    return jsonify({"prediction": prediction})
+    return jsonify({"prediction": prediction}), 200
 
 # Used for adding a prediction to the database
 @app.route("/api/predEntry/add", methods=["POST"])
@@ -427,14 +429,20 @@ def predictAdd(data=None):
     # Add the entry
     result =  add_entry(new_entry)
 
-    # return the result of the db action
-    return jsonify({'id': result})
+    if result is None:
+        return jsonify({'error': 'Failed to add entry'}),  500
+    else:
+        # return the result of the db action
+        return jsonify({'id': result}), 200
 
 # Used for getting all the predictions for a user
 @app.route("/api/predEntry/<user_id>", methods=["GET"])
 def getPredEntries(user_id):
     # Get all the entries for the user
     entries = get_entries(PredEntry, whereClause=PredEntry.user_id == user_id)
+
+    if entries is None:
+        return jsonify({'error': 'Failed to get entries'}),  500
 
     # Convert result to json
     entries = [
@@ -456,7 +464,7 @@ def getPredEntries(user_id):
     ]
 
     # Return the json
-    return jsonify(entries)
+    return jsonify(entries), 200
 
 # Used for removing entries
 @app.route("/api/predEntry/remove/<id>", methods=["GET"])
@@ -464,8 +472,10 @@ def removePredEntry(id=None):
     # Delete the entry
     entry = delete_entry(PredEntry, id)
 
-    # Redirect to history page
-    return jsonify({'result': 'ok'})
+    if entry is None:
+        return jsonify({'error': 'Failed to delete entry'}),  500
+    else:
+        return jsonify({'id': id}), 200
 
 # Used for exporting history
 @app.route("/api/predEntry/export/<user_id>", methods=["GET"])
@@ -481,7 +491,7 @@ def exportPredEntries(user_id):
         os.remove(os.path.join(dir_name, file))
 
     # Get all the entries for the user
-    response = getPredEntries(user_id)
+    response, status_code = getPredEntries(user_id)
     entries = response.json
 
     # Create the dataframe
@@ -544,10 +554,13 @@ def userAdd(data=None):
     # Add the user
     result = add_entry(new_user)
 
-    # Return the result of the db action
-    return jsonify({'id': result})
+    if result is None:
+        return jsonify({'error': 'Email already exists'}),  401
+    else:
+        # Return the result of the db action
+        return jsonify({'id': result}), 200
 
-@app.route("/api/user", methods=["GET"])
+@app.route("/api/user", methods=["POST"])
 def getUser(data=None):
     if data is None:
         # Read the json data
@@ -556,8 +569,13 @@ def getUser(data=None):
     # Get the user
     user = get_user(data["email"])
 
-    # Check if user exists and password is correct (hash from db matches form password)
-    if user and bcrypt.check_password_hash(user.password, data["password"]):
+    # Check if user exists
+    if user is None:
+        # Return an error
+        return jsonify({'error': 'Email does not exist'}),  404
+
+    # Check if password is correct (hash from db matches form password)
+    elif bcrypt.check_password_hash(user.password, data["password"]):
         login_user(user, remember=data["remember"])
         # Return the json
         return jsonify({"id": user.id}), 200
@@ -566,6 +584,12 @@ def getUser(data=None):
         # Return an error
         return jsonify({'error': 'Invalid Credentials'}),  401
     
+# Used for logging out
+@app.route("/api/user/logout", methods=["POST"])
+def logoutUser():
+    logout_user()
+    return jsonify({"result": "ok"}), 200
+    
 # Used for changing username
 @app.route("/api/user/changeUsername", methods=["POST"])
 def changeUsernameAPI(data=None):
@@ -573,14 +597,18 @@ def changeUsernameAPI(data=None):
         # Read the json data
         data = request.get_json()
 
-    # Get the user
+    # Get the user (previously validated in login)
     user = get_user(current_user.email)
 
     # Update the username
     user = update_user(user, username=data["username"])
 
-    # Return the result of the db action
-    return jsonify({'id': user.id})
+    if user is None:
+        # Return an error
+        return jsonify({'error': 'Failed to update username'}),  500
+    else:
+        # Return the result of the db action
+        return jsonify({'id': user.id}), 200
 
 # Used for changing password
 @app.route("/api/user/changePassword", methods=["POST"])
@@ -589,7 +617,7 @@ def changePasswordAPI(data=None):
         # Read the json data
         data = request.get_json()
 
-    # Get the user
+    # Get the user (previously validated in login)
     user = get_user(current_user.email)
 
     # Hash the password
@@ -597,9 +625,13 @@ def changePasswordAPI(data=None):
 
     # Update the password
     user = update_user(user, password=hashed_password)
-
-    # Return the result of the db action
-    return jsonify({'id': user.id})
+    
+    if user is None:
+        # Return an error
+        return jsonify({'error': 'Failed to update password'}),  500
+    else:
+        # Return the result of the db action
+        return jsonify({'id': user.id}), 200
 
 # Used for deleting account
 @app.route("/api/user/deleteAccount", methods=["POST"])
@@ -608,15 +640,19 @@ def deleteAccountAPI(data=None):
         # Read the json data
         data = request.get_json()
 
-    # Get the user
+    # Get the user (previously validated in login)
     user = get_user(current_user.email)
 
     if user.username == data["username"] and bcrypt.check_password_hash(user.password, data["password"]):
         # Delete the user
-        delete_entry(User, user.id)
+        result = delete_entry(User, user.id)
 
-        # Return the result of the db action
-        return jsonify({'id': user.id})
+        if result is None:
+            # Return an error
+            return jsonify({'error': 'Failed to delete account'}),  500
+        else:
+            # Return the result of the db action
+            return jsonify({'id': user.id}), 200
     else:
         # Return an error
         return jsonify({'error': 'Invalid Credentials'}),  401
@@ -634,7 +670,7 @@ def add_entry(new_entry):
         return new_entry.id
     except Exception as e:
         db.session.rollback()
-        flash(e, "error")
+        return None
 
 
 def get_entries(model, whereClause=True):
@@ -647,8 +683,7 @@ def get_entries(model, whereClause=True):
         return entries
     except Exception as e:
         db.session.rollback()
-        flash(e, "error")
-        return 0
+        return None
 
 
 def delete_entry(model, id):
@@ -659,30 +694,25 @@ def delete_entry(model, id):
         return entry.id
     except Exception as e:
         db.session.rollback()
-        flash(e, "error")
-        return 0
+        return None
 
 
 def get_user(email):
     try:
-        user = User.query.filter_by(email=email).first()
+        user = db.session.query(User).filter_by(email=email).first_or_404()
         return user
     except Exception as e:
-        flash(e, "error")
-        return 0
+        return None
 
 
 def update_user(user, username=None, password=None):
     try:
         if username:
-            # Check if username is the same as current username
             user.username = username
         if password:
-            # Check if password is the same as current password
             user.password = password
         db.session.commit()
         return user
     except Exception as e:
         db.session.rollback()
-        flash(e, "error")
-        return 0
+        return None
