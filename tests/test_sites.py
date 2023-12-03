@@ -15,17 +15,18 @@ from flask import json
          ["/profile"]
         ])
 def test_front_end_routes(client, entrylist, capsys):
-    # Login user
-    data = {
-        'email': "testingAccount2@gmail.com",
-        'password': "abc123abc123",
-        'remember': False
-    }
+    with capsys.disabled():
+        # Login user
+        data = {
+            'email': "testingAccount2@gmail.com",
+            'password': "abc123abc123",
+            'remember': False
+        }
 
-    response = client.post('/api/user', data=json.dumps(data), content_type='application/json')
-    assert response.status_code == 200
+        response = client.post('/api/user', data=json.dumps(data), content_type='application/json')
+        assert response.status_code == 200
 
-    # Test the front end routes
-    response2 = client.get(entrylist[0])
-    assert response2.status_code == 200
-    assert response2.headers['Content-Type'] == 'text/html; charset=utf-8'
+        # Test the front end routes
+        response2 = client.get(entrylist[0])
+        assert response2.status_code == 200
+        assert response2.headers['Content-Type'] == 'text/html; charset=utf-8'
