@@ -1,5 +1,4 @@
 #1: Import the required modules
-from application.models import User
 import datetime as datetime
 import pytest
 from flask import json
